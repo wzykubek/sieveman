@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
-	Blue   = "\033[34m"
+	reset  = "\033[0m"
+	red    = "\033[31m"
+	green  = "\033[32m"
+	yellow = "\033[33m"
+	blue   = "\033[34m"
 )
 
 func init() {
@@ -18,20 +18,20 @@ func init() {
 }
 
 func colorize(s string, c string) string {
-	return fmt.Sprintf("%s%s%s", c, s, Reset)
+	return fmt.Sprintf("%s%s%s", c, s, reset)
 }
 
 func logResponse(r Response) {
 	var c string
 	switch r.(type) {
 	case ResponseOK:
-		c = Yellow
+		c = yellow
 	case ResponseNO:
-		c = Red
+		c = red
 	case ResponseBYE:
-		c = Blue
+		c = blue
 	default:
-		c = Reset
+		c = reset
 	}
 
 	log.Printf("%s => %s", colorize(r.Type(), c), r.Message())

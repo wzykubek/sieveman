@@ -1,3 +1,4 @@
+// Package client is a library for ManageSieve protocol client. It tries to be RFC 5804 compliant.
 package client
 
 import (
@@ -27,6 +28,10 @@ func getConn(addr *net.TCPAddr) (*net.TCPConn, error) {
 	return conn, nil
 }
 
+// NewClient performs DNS-SRV lookup to host (RFC 5804 Section 1.8.1) to obtain IP address
+// and port of ManageSieve protocol. In case of failure it reads generic A record and uses
+// port as fallback (RFC 5804 Section 1.8.2).
+// It returns *Client and error if any.
 func NewClient(host string, port int) (*Client, error) {
 	var ip net.IP
 	var conn *net.TCPConn
@@ -96,6 +101,8 @@ func NewClient(host string, port int) (*Client, error) {
 	return c, nil
 }
 
+// Close closes both TCP and TLS connections.
+// It returns error if any.
 func (c *Client) Close() error {
 	var err error
 	if c.tcpConn != nil {
