@@ -3,6 +3,8 @@ package client
 import (
 	"fmt"
 	"log"
+
+	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
 const (
@@ -21,14 +23,14 @@ func colorize(s string, c string) string {
 	return fmt.Sprintf("%s%s%s", c, s, reset)
 }
 
-func logResponse(r Response) {
+func logResponse(r proto.Response) {
 	var c string
 	switch r.(type) {
-	case ResponseOK:
+	case proto.ResponseOK:
 		c = yellow
-	case ResponseNO:
+	case proto.ResponseNO:
 		c = red
-	case ResponseBYE:
+	case proto.ResponseBYE:
 		c = blue
 	default:
 		c = reset

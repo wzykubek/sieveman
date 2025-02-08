@@ -1,4 +1,4 @@
-package client
+package proto
 
 type Response interface {
 	Type() string
@@ -7,8 +7,8 @@ type Response interface {
 }
 
 type ResponseOK struct {
-	code ResponseCode
-	msg  string
+	ResponseCode ResponseCode
+	Msg          string
 }
 
 func (r ResponseOK) Type() string {
@@ -16,16 +16,16 @@ func (r ResponseOK) Type() string {
 }
 
 func (r ResponseOK) Code() ResponseCode {
-	return r.code
+	return r.ResponseCode
 }
 
 func (r ResponseOK) Message() string {
-	return r.msg
+	return r.Msg
 }
 
 type ResponseNO struct {
-	code ResponseCode
-	msg  string
+	ResponseCode ResponseCode
+	Msg          string
 }
 
 func (r ResponseNO) Type() string {
@@ -33,16 +33,16 @@ func (r ResponseNO) Type() string {
 }
 
 func (r ResponseNO) Code() ResponseCode {
-	return r.code
+	return r.ResponseCode
 }
 
 func (r ResponseNO) Message() string {
-	return r.msg
+	return r.Msg
 }
 
 type ResponseBYE struct {
-	code ResponseCode
-	msg  string
+	ResponseCode ResponseCode
+	Msg          string
 }
 
 func (r ResponseBYE) Type() string {
@@ -50,11 +50,11 @@ func (r ResponseBYE) Type() string {
 }
 
 func (r ResponseBYE) Code() ResponseCode {
-	return r.code
+	return r.ResponseCode
 }
 
 func (r ResponseBYE) Message() string {
-	return r.msg
+	return r.Msg
 }
 
 type Message struct {

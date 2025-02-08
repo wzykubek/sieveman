@@ -1,4 +1,4 @@
-package client
+package proto
 
 type ResponseCode interface {
 	Type() string
@@ -8,8 +8,8 @@ type ResponseCode interface {
 }
 
 type Tag struct {
-	msg   string
-	child ResponseCode
+	Msg       string
+	ChildCode ResponseCode
 }
 
 func (rc Tag) Type() string {
@@ -17,9 +17,9 @@ func (rc Tag) Type() string {
 }
 
 func (rc Tag) Message() string {
-	return rc.msg
+	return rc.Msg
 }
 
 func (rc Tag) Child() ResponseCode {
-	return rc.child
+	return rc.ChildCode
 }
