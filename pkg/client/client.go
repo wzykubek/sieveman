@@ -171,19 +171,11 @@ func (c *Client) readResponse() (proto.Response, []proto.Message, error) {
 		}
 
 		trimedLine := strings.TrimSpace(line)
-		resp, err := parsers.ParseResponse(trimedLine)
-		if err != nil {
-			return nil, messages, err
-		}
-
+		resp := parsers.ParseResponse(trimedLine)
 		if resp != nil {
 			return resp, messages, nil
 		} else {
-			msg, err := parsers.ParseMessage(trimedLine)
-			if err != nil {
-				return nil, nil, err
-			}
-
+			msg := parsers.ParseMessage(trimedLine)
 			messages = append(messages, msg)
 		}
 	}
