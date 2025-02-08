@@ -2,12 +2,12 @@ package client
 
 type Response interface {
 	Type() string
-	Code() string // TODO: create types for codes
+	Code() ResponseCode
 	Message() string
 }
 
 type ResponseOK struct {
-	code string
+	code ResponseCode
 	msg  string
 }
 
@@ -15,7 +15,7 @@ func (r ResponseOK) Type() string {
 	return "OK"
 }
 
-func (r ResponseOK) Code() string {
+func (r ResponseOK) Code() ResponseCode {
 	return r.code
 }
 
@@ -24,7 +24,7 @@ func (r ResponseOK) Message() string {
 }
 
 type ResponseNO struct {
-	code string
+	code ResponseCode
 	msg  string
 }
 
@@ -32,7 +32,7 @@ func (r ResponseNO) Type() string {
 	return "NO"
 }
 
-func (r ResponseNO) Code() string {
+func (r ResponseNO) Code() ResponseCode {
 	return r.code
 }
 
@@ -41,7 +41,7 @@ func (r ResponseNO) Message() string {
 }
 
 type ResponseBYE struct {
-	code string
+	code ResponseCode
 	msg  string
 }
 
@@ -49,7 +49,7 @@ func (r ResponseBYE) Type() string {
 	return "BYE"
 }
 
-func (r ResponseBYE) Code() string {
+func (r ResponseBYE) Code() ResponseCode {
 	return r.code
 }
 
