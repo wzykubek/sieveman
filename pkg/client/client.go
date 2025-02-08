@@ -95,7 +95,7 @@ func NewClient(host string, port int) (*Client, error) {
 	}
 	logResponse(r)
 
-	if _, ok := r.(proto.ResponseOK); ok {
+	if _, ok := r.(proto.Ok); ok {
 		c.upgradeConn()
 	}
 
@@ -127,7 +127,7 @@ func (c *Client) upgradeConn() {
 	}
 	logResponse(r)
 
-	if _, ok := r.(proto.ResponseOK); ok {
+	if _, ok := r.(proto.Ok); ok {
 		log.Println("Starting connection upgrade")
 		c.tlsConn = tls.Client(c.tcpConn, &tls.Config{
 			InsecureSkipVerify: true, // TODO

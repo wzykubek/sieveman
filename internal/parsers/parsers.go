@@ -31,11 +31,11 @@ func ParseResponse(respStr string) proto.Response {
 
 	switch resp {
 	case "OK":
-		return proto.ResponseOK{ResponseCode: code, Msg: msg}
+		return proto.Ok{ResponseCode: code, Msg: msg}
 	case "NO":
-		return proto.ResponseNO{ResponseCode: code, Msg: msg}
+		return proto.No{ResponseCode: code, Msg: msg}
 	case "BYE":
-		return proto.ResponseBYE{ResponseCode: code, Msg: msg}
+		return proto.Bye{ResponseCode: code, Msg: msg}
 	default:
 		return nil
 	}

@@ -1,63 +1,52 @@
 package proto
 
-type Response interface {
-	Type() string
-	Code() ResponseCode
-	Message() string
-}
-
-type ResponseOK struct {
+type Ok struct {
 	ResponseCode ResponseCode
 	Msg          string
 }
 
-func (r ResponseOK) Type() string {
+func (r Ok) Type() string {
 	return "OK"
 }
 
-func (r ResponseOK) Code() ResponseCode {
+func (r Ok) Code() ResponseCode {
 	return r.ResponseCode
 }
 
-func (r ResponseOK) Message() string {
+func (r Ok) Message() string {
 	return r.Msg
 }
 
-type ResponseNO struct {
+type No struct {
 	ResponseCode ResponseCode
 	Msg          string
 }
 
-func (r ResponseNO) Type() string {
+func (r No) Type() string {
 	return "NO"
 }
 
-func (r ResponseNO) Code() ResponseCode {
+func (r No) Code() ResponseCode {
 	return r.ResponseCode
 }
 
-func (r ResponseNO) Message() string {
+func (r No) Message() string {
 	return r.Msg
 }
 
-type ResponseBYE struct {
+type Bye struct {
 	ResponseCode ResponseCode
 	Msg          string
 }
 
-func (r ResponseBYE) Type() string {
+func (r Bye) Type() string {
 	return "BYE"
 }
 
-func (r ResponseBYE) Code() ResponseCode {
+func (r Bye) Code() ResponseCode {
 	return r.ResponseCode
 }
 
-func (r ResponseBYE) Message() string {
+func (r Bye) Message() string {
 	return r.Msg
-}
-
-type Message struct {
-	Key   string
-	Value string
 }

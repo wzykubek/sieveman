@@ -26,11 +26,11 @@ func colorize(s string, c string) string {
 func logResponse(r proto.Response) {
 	var c string
 	switch r.(type) {
-	case proto.ResponseOK:
+	case proto.Ok:
 		c = yellow
-	case proto.ResponseNO:
+	case proto.No:
 		c = red
-	case proto.ResponseBYE:
+	case proto.Bye:
 		c = blue
 	default:
 		c = reset
