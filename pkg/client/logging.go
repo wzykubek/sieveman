@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
@@ -15,9 +16,7 @@ const (
 	blue   = "\033[34m"
 )
 
-func init() {
-	log.SetFlags(log.Ltime)
-}
+var Logger log.Logger = *log.New(os.Stderr, "", 3)
 
 func colorize(s string, c string) string {
 	return fmt.Sprintf("%s%s%s", c, s, reset)
@@ -36,5 +35,5 @@ func logResponse(r proto.Response) {
 		c = reset
 	}
 
-	log.Printf("%s => %s", colorize(r.Type(), c), r.Message())
+	Logger.Printf("%s => %s", colorize(r.Type(), c), r.Message())
 }

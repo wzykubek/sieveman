@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"go.wzykubek.xyz/sieveman/pkg/client"
@@ -33,10 +32,8 @@ var cmdRoot = &cobra.Command{
 	Short: "Sieve manager",
 	Long:  "Universal ManageSieve protocol client",
 	Run: func(cmd *cobra.Command, args []string) {
-		if verbose {
-			log.SetOutput(os.Stdout)
-		} else {
-			log.SetOutput(io.Discard)
+		if !verbose {
+			client.Logger.SetOutput(io.Discard)
 		}
 
 		c, err := client.NewClient(host, port)
