@@ -126,3 +126,24 @@ func (c *Client) ReadResponse() (proto.Response, []string, error) {
 		}
 	}
 }
+
+// GetCapabilities reads server capabilities.
+// It returns proto.Capabilities and error if any.
+func (c *Client) GetCapabilities() (proto.Capabilities, error) {
+	var capabilities proto.Capabilities
+	err := c.Write("CAPABILITY")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	r, messages, err := c.ReadResponse()
+	if err != nil {
+		return capabilities, err
+	}
+
+	if _, ok := r.(proto.Ok); ok {
+		capabilities = parsers.ParseCapabilities(messages)
+	}
+
+	return capabilities, nil
+}

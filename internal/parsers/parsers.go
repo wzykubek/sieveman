@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"go.wzykubek.xyz/sieveman/pkg/proto"
@@ -68,4 +69,43 @@ func ParseResponseCode(codeStr string) proto.ResponseCode {
 	default:
 		return nil
 	}
+}
+
+func ParseCapabilities(messages []string) proto.Capabilities {
+	cpb := proto.Capabilities{StartSSL: false}
+
+	for _, msg := range messages {
+		re := regexp.MustCompile(`"([^"]+)"`)
+		matches := re.FindAllString(msg, 2)
+		if matches == nil {
+			return cpb
+		}
+
+		k, v := strings.Trim(matches[0], "\""), strings.Trim(matches[1], "\"")
+
+		switch k {
+		case "IMPLEMENTATION":
+			cpb.Implementation = v
+		case "SASL":
+			cpb.SASL = strings.Fields(v)
+		case "SIEVE":
+			cpb.Sieve = strings.Fields(v)
+		case "STARTTLS":
+			cpb.StartSSL = true
+		case "MAXREDIRECTS":
+			cpb.MaxRedirects, _ = strconv.Atoi(v)
+		case "NOTIFY":
+			cpb.Notify = strings.Fields(v)
+		case "LANGUAGE":
+			cpb.Language = v
+		case "OWNER":
+			cpb.Owner = v
+		case "VERSION":
+			cpb.Version = v
+		default:
+			continue
+		}
+	}
+
+	return cpb
 }

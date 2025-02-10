@@ -13,3 +13,15 @@ type ResponseCode interface {
 	// Child returns additional hierarchical response code if any. In most cases it is nil.
 	Child() ResponseCode
 }
+
+type Capabilities struct {
+	Implementation string
+	SASL           []string
+	Sieve          []string
+	StartSSL       bool
+	MaxRedirects   int
+	Notify         []string
+	Language       string
+	Owner          string
+	Version        string
+}
