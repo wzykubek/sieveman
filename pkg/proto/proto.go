@@ -13,8 +13,3 @@ type ResponseCode interface {
 	// Child returns additional hierarchical response code if any. In most cases it is nil.
 	Child() ResponseCode
 }
-
-type Message struct {
-	Key   string
-	Value string
-}

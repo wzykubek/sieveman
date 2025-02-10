@@ -24,6 +24,9 @@ type Client struct {
 // It returns *Client and error if any.
 func NewClient(host string, port int) (*Client, error) {
 	tcpConn, err := GetTCPConn(host, port)
+	if err != nil {
+		return nil, err
+	}
 
 	c := &Client{
 		Conn:   tcpConn,
@@ -105,8 +108,8 @@ func (c *Client) Write(str string) error {
 
 // ReadResponse is a low level method to read and parse response from server.
 // It returns parsed response, slice of messages and error if any.
-func (c *Client) ReadResponse() (proto.Response, []proto.Message, error) {
-	var messages []proto.Message
+func (c *Client) ReadResponse() (proto.Response, []string, error) {
+	var messages []string
 
 	for {
 		line, err := c.Reader.ReadString('\n')
@@ -119,8 +122,7 @@ func (c *Client) ReadResponse() (proto.Response, []proto.Message, error) {
 		if resp != nil {
 			return resp, messages, nil
 		} else {
-			msg := parsers.ParseMessage(trimedLine)
-			messages = append(messages, msg)
+			messages = append(messages, trimedLine)
 		}
 	}
 }

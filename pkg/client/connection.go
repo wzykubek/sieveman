@@ -9,15 +9,14 @@ func resolveIPv4(host string) (net.IP, error) {
 	Logger.Println("Resolving IPv4")
 
 	ips, err := net.LookupIP(host)
-	ipv4 := ips[0]
 	if err != nil {
 		Logger.Printf("-> Error resolving IP address: %v", err)
 		return nil, err
 	} else {
-		Logger.Printf("-> Resolved %s IP", ipv4)
+		Logger.Printf("-> Resolved %s IP", ips[0])
 	}
 
-	return ipv4, nil
+	return ips[0], nil
 }
 
 func dialTCP(ip net.IP, port int) (*net.TCPConn, error) {
