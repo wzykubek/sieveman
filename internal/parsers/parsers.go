@@ -81,7 +81,13 @@ func ParseCapabilities(messages []string) proto.Capabilities {
 			return cpb
 		}
 
-		k, v := strings.Trim(matches[0], "\""), strings.Trim(matches[1], "\"")
+		var k, v string
+		if len(matches) == 1 {
+			k = strings.Trim(matches[0], "\"")
+		}
+		if len(matches) == 2 {
+			v = strings.Trim(matches[1], "\"")
+		}
 
 		switch k {
 		case "IMPLEMENTATION":
