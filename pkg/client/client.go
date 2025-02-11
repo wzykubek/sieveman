@@ -62,7 +62,21 @@ func (c *Client) Close() error {
 // UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
 // It returns error if any.
 func (c *Client) UpgradeConn() error {
-	Logger.Println("Trying to start TLS negotiation")
+	Logger.Println("Checking server capabilities")
+	capabilities, err := c.GetCapabilities()
+	if err != nil {
+		return err
+	}
+
+	if capabilities.StartSSL {
+		Logger.Println("-> Server supports StartTLS")
+		Logger.Println("Trying to start TLS negotiation")
+	} else {
+		Logger.Println("-> Server does not support StartTLS")
+		Logger.Println("Aborting connection upgrade")
+		return nil
+	}
+
 	c.Write("STARTTLS")
 
 	r, _, err := c.ReadResponse()
