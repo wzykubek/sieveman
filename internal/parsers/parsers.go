@@ -82,10 +82,10 @@ func ParseCapabilities(messages []string) proto.Capabilities {
 		}
 
 		var k, v string
-		if len(matches) == 1 {
+		if len(matches) >= 1 {
 			k = strings.Trim(matches[0], "\"")
 		}
-		if len(matches) == 2 {
+		if len(matches) >= 2 {
 			v = strings.Trim(matches[1], "\"")
 		}
 
