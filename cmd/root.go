@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"go.wzykubek.xyz/sieveman/pkg/client"
+	"go.wzykubek.xyz/sieveman/pkg/proto"
 
 	"github.com/spf13/cobra"
 )
@@ -38,9 +39,20 @@ var cmdRoot = &cobra.Command{
 
 		c, err := client.NewClient(host, port)
 		if err != nil {
-			panic(err)
+			os.Exit(1)
 		}
 		defer c.Close()
+
+		r, err := c.AuthPLAIN(username, password)
+		if err != nil {
+			os.Exit(1)
+		}
+
+		if _, ok := r.(proto.Ok); ok {
+			fmt.Println("Authentication successful!")
+		} else {
+			fmt.Println("Authentication failded!")
+		}
 
 		// TODO: Interactive part
 	},
