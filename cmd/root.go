@@ -51,7 +51,7 @@ var rootCmd = &cobra.Command{
 		if _, ok := r.(proto.Ok); ok {
 			fmt.Println("Authentication successful!")
 		} else {
-			fmt.Println("Authentication failded!")
+			fmt.Println("Authentication failed!")
 		}
 
 		// TODO: Interactive part
