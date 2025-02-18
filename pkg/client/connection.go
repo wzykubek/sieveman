@@ -51,9 +51,7 @@ func attemptConn(host string, port int) (*net.TCPConn, error) {
 // and port of ManageSieve protocol. In case of failure it reads generic A record and uses
 // port as fallback (RFC 5804 Section 1.8.2).
 // It returns valid TCP connection and error if any.
-func GetTCPConn(host string, port int) (*net.TCPConn, error) {
-	var conn *net.TCPConn
-
+func GetTCPConn(host string, port int) (conn *net.TCPConn, err error) {
 	Logger.Printf("Trying to lookup SRV records of %s host\n", host)
 	_, records, err := net.LookupSRV("sieve", "tcp", host)
 	if err == nil {
@@ -86,15 +84,13 @@ func GetTCPConn(host string, port int) (*net.TCPConn, error) {
 
 // GetTLSConn connects to server using TLS.
 // It returns TLS connection and error if any.
-func GetTLSConn(plainConn net.Conn) (*tls.Conn, error) {
-	var tlsConn *tls.Conn
-
-	tlsConn = tls.Client(plainConn, &tls.Config{
+func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
+	conn = tls.Client(plainConn, &tls.Config{
 		InsecureSkipVerify: true, // TODO
 	})
-	err := tlsConn.Handshake()
+	err = conn.Handshake()
 	if err != nil {
 		return nil, err
 	}
-	return tlsConn, nil
+	return conn, nil
 }

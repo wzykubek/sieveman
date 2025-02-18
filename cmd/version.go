@@ -10,7 +10,7 @@ var (
 	version = "dev"
 )
 
-var cmdVersion = &cobra.Command{
+var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show the version",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -19,5 +19,5 @@ var cmdVersion = &cobra.Command{
 }
 
 func init() {
-	cmdRoot.AddCommand(cmdVersion)
+	rootCmd.AddCommand(versionCmd)
 }

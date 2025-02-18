@@ -18,17 +18,17 @@ var password string
 var verbose bool
 
 func init() {
-	cmdRoot.PersistentFlags().StringVarP(&host, "host", "H", "", "host")
-	cmdRoot.PersistentFlags().IntVarP(&port, "port", "P", 4190, "port")
-	cmdRoot.PersistentFlags().StringVarP(&username, "username", "u", "", "username [email address]")
-	cmdRoot.PersistentFlags().StringVarP(&password, "password", "p", "", "password")
-	cmdRoot.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose")
+	rootCmd.PersistentFlags().StringVarP(&host, "host", "H", "", "host")
+	rootCmd.PersistentFlags().IntVarP(&port, "port", "P", 4190, "port")
+	rootCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "username [email address]")
+	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "password")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose")
 
-	cmdRoot.Flags().SortFlags = false
-	cmdRoot.PersistentFlags().SortFlags = false
+	rootCmd.Flags().SortFlags = false
+	rootCmd.PersistentFlags().SortFlags = false
 }
 
-var cmdRoot = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:   "sieveman",
 	Short: "Sieve manager",
 	Long:  "Universal ManageSieve protocol client",
@@ -59,7 +59,7 @@ var cmdRoot = &cobra.Command{
 }
 
 func Execute() {
-	if err := cmdRoot.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

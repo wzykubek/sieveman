@@ -71,14 +71,14 @@ func ParseResponseCode(codeStr string) proto.ResponseCode {
 	}
 }
 
-func ParseCapabilities(messages []string) proto.Capabilities {
-	cpb := proto.Capabilities{StartSSL: false}
+func ParseCapabilities(messages []string) (capb proto.Capabilities) {
+	capb.StartSSL = false
 
 	for _, msg := range messages {
 		re := regexp.MustCompile(`"([^"]+)"`)
 		matches := re.FindAllString(msg, 2)
 		if matches == nil {
-			return cpb
+			return capb
 		}
 
 		var k, v string
@@ -91,27 +91,25 @@ func ParseCapabilities(messages []string) proto.Capabilities {
 
 		switch k {
 		case "IMPLEMENTATION":
-			cpb.Implementation = v
+			capb.Implementation = v
 		case "SASL":
-			cpb.SASL = strings.Fields(v)
+			capb.SASL = strings.Fields(v)
 		case "SIEVE":
-			cpb.Sieve = strings.Fields(v)
+			capb.Sieve = strings.Fields(v)
 		case "STARTTLS":
-			cpb.StartSSL = true
+			capb.StartSSL = true
 		case "MAXREDIRECTS":
-			cpb.MaxRedirects, _ = strconv.Atoi(v)
+			capb.MaxRedirects, _ = strconv.Atoi(v)
 		case "NOTIFY":
-			cpb.Notify = strings.Fields(v)
+			capb.Notify = strings.Fields(v)
 		case "LANGUAGE":
-			cpb.Language = v
+			capb.Language = v
 		case "OWNER":
-			cpb.Owner = v
+			capb.Owner = v
 		case "VERSION":
-			cpb.Version = v
-		default:
-			continue
+			capb.Version = v
 		}
 	}
 
-	return cpb
+	return capb
 }
