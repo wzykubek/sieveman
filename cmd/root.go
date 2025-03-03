@@ -11,11 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var host string
-var port int
-var username string
-var password string
-var verbose bool
+var c *client.Client
+
+var (
+	host     string
+	port     int
+	username string
+	password string
+	verbose  bool
+)
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&host, "host", "H", "", "host")
@@ -32,27 +36,29 @@ var rootCmd = &cobra.Command{
 	Use:   "sieveman",
 	Short: "Sieve manager",
 	Long:  "Universal ManageSieve protocol client",
-	Run: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			client.Logger.SetOutput(io.Discard)
 		}
 
-		c, err := client.NewClient(host, port)
+		var err error
+		c, err = client.NewClient(host, port)
 		if err != nil {
 			os.Exit(1)
 		}
-		defer c.Close()
 
 		r, err := c.AuthPLAIN(username, password)
 		if err != nil {
 			os.Exit(1)
 		}
 
-		if _, ok := r.(proto.Ok); ok {
-			fmt.Println("Authentication successful!")
-		} else {
+		if _, ok := r.(proto.Ok); !ok {
 			fmt.Println("Authentication failed!")
+			os.Exit(1)
 		}
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		defer c.Close()
 
 		// TODO: Interactive part
 	},
