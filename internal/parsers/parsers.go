@@ -25,6 +25,9 @@ func ParseResponse(respStr string) proto.Response {
 	// When P2 or "P3" is not present, it MUST return an empty string for those parts.
 	re := regexp.MustCompile(`^(\S+)\s*(\([^)]*\))?\s*("[^"]*")?$`)
 	matches := re.FindStringSubmatch(respStr)
+	if len(matches) <= 2 {
+		return nil
+	}
 
 	resp := matches[1]
 	code := ParseResponseCode(matches[2])
@@ -112,4 +115,18 @@ func ParseCapabilities(messages []string) (capb proto.Capabilities) {
 	}
 
 	return capb
+}
+
+func ParseScriptList(m []string) (s []proto.Script) {
+	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
+	for _, v := range m {
+		matches := re.FindStringSubmatch(v)
+		if matches != nil {
+			name := matches[1]
+			active := len(matches[2]) > 0
+			s = append(s, proto.Script{Name: name, Active: active})
+		}
+	}
+
+	return s
 }
