@@ -24,7 +24,7 @@ You can use '-' character as file name to print to stdout.`,
 		scriptName := args[0]
 		var outFile string = args[1]
 
-		_, s, err := c.GetScript(scriptName)
+		s, err := c.GetScript(scriptName)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

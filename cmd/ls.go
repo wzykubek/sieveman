@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"go.wzykubek.xyz/sieveman/pkg/proto"
-
 	"github.com/spf13/cobra"
 )
 
@@ -29,25 +27,23 @@ var lsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		defer c.Close()
 
-		r, scripts, err := c.ListScripts()
+		scripts, err := c.ListScripts()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		if _, ok := r.(proto.Ok); ok {
-			for _, v := range scripts {
-				var ind rune
-				if v.Active && !noIndicator {
-					ind = '*'
-				}
-
-				if onlyActive && !v.Active {
-					continue
-				}
-
-				fmt.Printf("%s%c\n", v.Name, ind)
+		for _, v := range scripts {
+			var ind rune
+			if v.Active && !noIndicator {
+				ind = '*'
 			}
+
+			if onlyActive && !v.Active {
+				continue
+			}
+
+			fmt.Printf("%s%c\n", v.Name, ind)
 		}
 
 	},

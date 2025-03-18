@@ -9,27 +9,32 @@ import (
 	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
-func (c *Client) ListScripts() (_ proto.Response, s []proto.Script, err error) {
+func (c *Client) ListScripts() (s []proto.Script, err error) {
 	Logger.Println("Trying to obtain script list")
 
 	c.Write("LISTSCRIPTS")
 	r, m, err := c.ReadResponse()
 	if err != nil {
-		return nil, s, err
+		return s, err
 	}
 	logResponse(r)
 
-	s = parsers.ParseScriptList(m)
-	return r, s, nil
+	if r.Type() == "OK" {
+		s = parsers.ParseScriptList(m)
+	} else {
+		err = errors.New(r.Message())
+	}
+
+	return s, nil
 }
 
-func (c *Client) GetScript(name string) (_ proto.Response, script string, err error) {
+func (c *Client) GetScript(name string) (script string, err error) {
 	Logger.Println("Trying to get script content")
 
 	c.Write(fmt.Sprintf("GETSCRIPT \"%s\"", name))
 	r, m, err := c.ReadResponse()
 	if err != nil {
-		return nil, script, err
+		return script, err
 	}
 	logResponse(r)
 
@@ -39,5 +44,5 @@ func (c *Client) GetScript(name string) (_ proto.Response, script string, err er
 		err = errors.New(r.Message())
 	}
 
-	return r, script, err
+	return script, err
 }
