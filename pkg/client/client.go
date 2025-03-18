@@ -124,6 +124,7 @@ func (c *Client) ReadResponse() (_ proto.Response, messages []string, err error)
 			return nil, messages, err
 		}
 
+		// TODO: This line is problematic, script and it's indentation is also trimmed.
 		trimedLine := strings.TrimSpace(line)
 		if resp := parsers.ParseResponse(trimedLine); resp != nil {
 			return resp, messages, nil
