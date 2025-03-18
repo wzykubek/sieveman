@@ -69,6 +69,8 @@ func ParseResponseCode(codeStr string) proto.ResponseCode {
 	switch code {
 	case "TAG":
 		return proto.Tag{Msg: msg, ChildCode: nil}
+	case "NONEXISTENT":
+		return proto.NonExistent{Msg: "", ChildCode: nil}
 	default:
 		return nil
 	}
