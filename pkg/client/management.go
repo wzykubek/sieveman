@@ -3,7 +3,7 @@ package client
 import (
 	"errors"
 	"fmt"
-	"strings"
+	"strconv"
 
 	"go.wzykubek.xyz/sieveman/internal/parsers"
 	"go.wzykubek.xyz/sieveman/pkg/proto"
@@ -28,21 +28,22 @@ func (c *Client) ListScripts() (s []proto.Script, err error) {
 	return s, nil
 }
 
-func (c *Client) GetScript(name string) (script string, err error) {
+func (c *Client) GetScriptLines(name string) (size int64, script []string, err error) {
 	Logger.Println("Trying to get script content")
 
 	c.Write(fmt.Sprintf("GETSCRIPT \"%s\"", name))
 	r, m, err := c.ReadResponse()
 	if err != nil {
-		return script, err
+		return size, script, err
 	}
 	logResponse(r)
 
 	if r.Type() == "OK" {
-		script = strings.TrimSpace(strings.Join(m[1:], "\n")) // Ignore length
+		size, _ = strconv.ParseInt(m[0], 10, 64) // TODO: Handle error
+		script = m[1 : len(m)-1]
 	} else {
 		err = errors.New(r.Message())
 	}
 
-	return script, err
+	return size, script, err
 }

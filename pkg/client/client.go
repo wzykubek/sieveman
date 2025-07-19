@@ -7,7 +7,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
-	"strings"
 
 	"go.wzykubek.xyz/sieveman/internal/parsers"
 	"go.wzykubek.xyz/sieveman/pkg/proto"
@@ -119,17 +118,21 @@ func (c *Client) Write(str string) error {
 // It returns parsed response, slice of messages and error if any.
 func (c *Client) ReadResponse() (_ proto.Response, messages []string, err error) {
 	for {
-		line, err := c.Reader.ReadString('\n')
+		var line string
+		line, err = c.Reader.ReadString('\n')
+		if c.Reader.Buffered() == 0 {
+			if resp := parsers.ParseResponse(line); resp != nil {
+				return resp, messages, nil
+			}
+		}
 		if err != nil {
 			return nil, messages, err
 		}
 
-		// TODO: This line is problematic, script and it's indentation is also trimmed.
-		trimedLine := strings.TrimSpace(line)
-		if resp := parsers.ParseResponse(trimedLine); resp != nil {
+		if resp := parsers.ParseResponse(line); resp != nil {
 			return resp, messages, nil
 		} else {
-			messages = append(messages, trimedLine)
+			messages = append(messages, line)
 		}
 	}
 }

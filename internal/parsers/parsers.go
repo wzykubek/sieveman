@@ -24,7 +24,7 @@ func ParseResponse(respStr string) proto.Response {
 	//
 	// When P2 or "P3" is not present, it MUST return an empty string for those parts.
 	re := regexp.MustCompile(`^(\S+)\s*(\([^)]*\))?\s*("[^"]*")?$`)
-	matches := re.FindStringSubmatch(respStr)
+	matches := re.FindStringSubmatch(strings.TrimSpace(respStr))
 	if len(matches) <= 2 {
 		return nil
 	}
@@ -71,6 +71,8 @@ func ParseResponseCode(codeStr string) proto.ResponseCode {
 		return proto.Tag{Msg: msg, ChildCode: nil}
 	case "NONEXISTENT":
 		return proto.NonExistent{Msg: "", ChildCode: nil}
+	case "QUOTA":
+		return proto.Quota{Msg: msg, ChildCode: nil}
 	default:
 		return nil
 	}

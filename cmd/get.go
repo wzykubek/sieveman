@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
@@ -24,20 +25,28 @@ You can use '-' character as file name to print to stdout.`,
 		scriptName := args[0]
 		var outFile string = args[1]
 
-		s, err := c.GetScript(scriptName)
+		_, lines, err := c.GetScriptLines(scriptName)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+		var f *os.File
+		defer f.Close()
 		if outFile == "-" {
-			fmt.Println(s)
+			f = os.Stdout
 		} else {
-			if err := os.WriteFile(outFile, []byte(s), 0644); err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+			f, err = os.Create(outFile)
+			if err != nil {
+				panic(err)
 			}
 		}
 
+		buf := bufio.NewWriter(f)
+		defer buf.Flush()
+
+		for _, l := range lines {
+			buf.WriteString(l)
+		}
 	},
 }
