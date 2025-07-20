@@ -27,7 +27,7 @@ var lsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		defer c.Close()
 
-		scripts, err := c.ListScripts()
+		scripts, err := c.GetScriptList()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -45,6 +45,5 @@ var lsCmd = &cobra.Command{
 
 			fmt.Printf("%s%c\n", v.Name, ind)
 		}
-
 	},
 }

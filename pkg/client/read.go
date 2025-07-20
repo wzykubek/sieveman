@@ -1,14 +1,13 @@
-package parsers
+package client
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 
 	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
-func ParseResponse(respStr string) proto.Response {
+func parseResponse(respStr string) proto.Response {
 	if respStr == "" {
 		return nil
 	}
@@ -30,7 +29,7 @@ func ParseResponse(respStr string) proto.Response {
 	}
 
 	resp := matches[1]
-	code := ParseResponseCode(matches[2])
+	code := parseResponseCode(matches[2])
 	msg := strings.Trim(matches[3], "\"")
 
 	switch resp {
@@ -45,7 +44,7 @@ func ParseResponse(respStr string) proto.Response {
 	}
 }
 
-func ParseResponseCode(codeStr string) proto.ResponseCode {
+func parseResponseCode(codeStr string) proto.ResponseCode {
 	if codeStr == "" {
 		return nil
 	}
@@ -78,59 +77,25 @@ func ParseResponseCode(codeStr string) proto.ResponseCode {
 	}
 }
 
-func ParseCapabilities(messages []string) (capb proto.Capabilities) {
-	capb.StartSSL = false
-
-	for _, msg := range messages {
-		re := regexp.MustCompile(`"([^"]+)"`)
-		matches := re.FindAllString(msg, 2)
-		if matches == nil {
-			return capb
+// ReadResponse is a low level method to read and parse response from server.
+// It returns parsed response, slice of messages and error if any.
+func (c *Client) ReadResponse() (_ proto.Response, messages []string, err error) {
+	for {
+		var line string
+		line, err = c.Reader.ReadString('\n')
+		if c.Reader.Buffered() == 0 {
+			if resp := parseResponse(line); resp != nil {
+				return resp, messages, nil
+			}
+		}
+		if err != nil {
+			return nil, messages, err
 		}
 
-		var k, v string
-		if len(matches) >= 1 {
-			k = strings.Trim(matches[0], "\"")
-		}
-		if len(matches) >= 2 {
-			v = strings.Trim(matches[1], "\"")
-		}
-
-		switch k {
-		case "IMPLEMENTATION":
-			capb.Implementation = v
-		case "SASL":
-			capb.SASL = strings.Fields(v)
-		case "SIEVE":
-			capb.Sieve = strings.Fields(v)
-		case "STARTTLS":
-			capb.StartSSL = true
-		case "MAXREDIRECTS":
-			capb.MaxRedirects, _ = strconv.Atoi(v)
-		case "NOTIFY":
-			capb.Notify = strings.Fields(v)
-		case "LANGUAGE":
-			capb.Language = v
-		case "OWNER":
-			capb.Owner = v
-		case "VERSION":
-			capb.Version = v
+		if resp := parseResponse(line); resp != nil {
+			return resp, messages, nil
+		} else {
+			messages = append(messages, line)
 		}
 	}
-
-	return capb
-}
-
-func ParseScriptList(m []string) (s []proto.Script) {
-	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
-	for _, v := range m {
-		matches := re.FindStringSubmatch(v)
-		if matches != nil {
-			name := matches[1]
-			active := len(matches[2]) > 0
-			s = append(s, proto.Script{Name: name, Active: active})
-		}
-	}
-
-	return s
 }

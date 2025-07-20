@@ -4,56 +4,70 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 
 	"go.wzykubek.xyz/sieveman/internal/helpers"
-	"go.wzykubek.xyz/sieveman/internal/parsers"
 	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
-func (c *Client) ListScripts() (s []proto.Script, err error) {
+func parseScriptList(m []string) (scripts []proto.Script) {
+	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
+	for _, v := range m {
+		matches := re.FindStringSubmatch(v)
+		if matches != nil {
+			name := matches[1]
+			active := len(matches[2]) > 0
+			scripts = append(scripts, proto.Script{Name: name, Active: active})
+		}
+	}
+
+	return scripts
+}
+
+func (c *Client) GetScriptList() (scripts []proto.Script, err error) {
 	Logger.Println("Trying to obtain script list")
 
-	c.Write("LISTSCRIPTS")
+	c.WriteLine("LISTSCRIPTS")
 	r, m, err := c.ReadResponse()
 	if err != nil {
-		return s, err
+		return scripts, err
 	}
 	logResponse(r)
 
-	if r.Type() == "OK" {
-		s = parsers.ParseScriptList(m)
-	} else {
-		err = errors.New(r.Message())
+	if r.Type() != "OK" {
+		return scripts, errors.New(r.Message())
 	}
 
-	return s, nil
+	scripts = parseScriptList(m)
+
+	return scripts, nil
 }
 
 func (c *Client) GetScriptLines(name string) (size int64, script []string, err error) {
 	Logger.Println("Trying to get script content")
 
-	c.Write(fmt.Sprintf("GETSCRIPT \"%s\"", name))
+	c.WriteLine(fmt.Sprintf("GETSCRIPT \"%s\"", name))
 	r, m, err := c.ReadResponse()
 	if err != nil {
 		return size, script, err
 	}
 	logResponse(r)
 
-	if r.Type() == "OK" {
-		size, _ = strconv.ParseInt(m[0], 10, 64) // TODO: Handle error
-		script = m[1 : len(m)-1]
-	} else {
-		err = errors.New(r.Message())
+	if r.Type() != "OK" {
+		return size, script, errors.New(r.Message())
 	}
 
-	return size, script, err
+	size, _ = strconv.ParseInt(m[0], 10, 64) // TODO: Handle error
+	script = m[1 : len(m)-1]
+
+	return size, script, nil
 }
 
-func (c *Client) HaveSpace(name string, size int64) error {
+func (c *Client) CheckSpace(name string, size int64) error {
 	Logger.Println("Trying to check available space")
 
-	c.Write(fmt.Sprintf("HAVESPACE \"%s\" %d", name, size))
+	c.WriteLine(fmt.Sprintf("HAVESPACE \"%s\" %d", name, size))
 	r, _, err := c.ReadResponse()
 	if err != nil {
 		return err
@@ -77,8 +91,7 @@ func (c *Client) PutScript(file *os.File, name string) error {
 		return errors.New("File is empty")
 	}
 
-	err = c.HaveSpace(name, size)
-	if err != nil {
+	if err = c.CheckSpace(name, size); err != nil {
 		return err
 	}
 
@@ -88,9 +101,10 @@ func (c *Client) PutScript(file *os.File, name string) error {
 	if err != nil {
 		return err
 	}
+
 	script := string(fileContent)
 
-	c.Write(fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script))
+	c.WriteLine(fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script))
 	r, _, err := c.ReadResponse() // TODO: Fix handling of response when syntax is bad
 	if err != nil {
 		return err

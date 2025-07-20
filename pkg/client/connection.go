@@ -1,8 +1,11 @@
 package client
 
 import (
+	"bufio"
 	"crypto/tls"
 	"net"
+
+	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
 func resolveIPv4(host string) (net.IP, error) {
@@ -12,9 +15,9 @@ func resolveIPv4(host string) (net.IP, error) {
 	if err != nil {
 		Logger.Printf("-> Error resolving IP address: %v", err)
 		return nil, err
-	} else {
-		Logger.Printf("-> Resolved %s IP", ips[0])
 	}
+
+	Logger.Printf("-> Resolved %s IP", ips[0])
 
 	return ips[0], nil
 }
@@ -47,32 +50,39 @@ func attemptConn(host string, port int) (*net.TCPConn, error) {
 	return conn, nil
 }
 
+// Close closes connection.
+// It returns error if any.
+func (c *Client) Close() error {
+	return c.Conn.Close()
+}
+
 // GetTCPConn performs DNS-SRV lookup to host (RFC 5804 Section 1.8.1) to obtain IP address
 // and port of ManageSieve protocol. In case of failure it reads generic A record and uses
 // port as fallback (RFC 5804 Section 1.8.2).
 // It returns valid TCP connection and error if any.
 func GetTCPConn(host string, port int) (conn *net.TCPConn, err error) {
 	Logger.Printf("Trying to lookup SRV records of %s host\n", host)
+
 	_, records, err := net.LookupSRV("sieve", "tcp", host)
-	if err == nil {
-		Logger.Printf("-> Found SRV records")
-
-		for _, rec := range records {
-			conn, err = attemptConn(rec.Target, int(rec.Port))
-			if err == nil {
-				break
-			}
-		}
-
-		if conn == nil {
-			Logger.Println("-> SRV records did not yield a connection")
-			conn, err = attemptConn(host, port)
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
+	if err != nil {
 		Logger.Println("-> SRV lookup failed")
+		conn, err = attemptConn(host, port)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	Logger.Printf("-> Found SRV records")
+
+	for _, rec := range records {
+		conn, err = attemptConn(rec.Target, int(rec.Port))
+		if err == nil {
+			break
+		}
+	}
+
+	if conn == nil {
+		Logger.Println("-> SRV records did not yield a connection")
 		conn, err = attemptConn(host, port)
 		if err != nil {
 			return nil, err
@@ -88,9 +98,61 @@ func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
 	conn = tls.Client(plainConn, &tls.Config{
 		InsecureSkipVerify: true, // TODO
 	})
+
 	err = conn.Handshake()
 	if err != nil {
 		return nil, err
 	}
+
 	return conn, nil
+}
+
+// UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
+// It returns error if any.
+func (c *Client) UpgradeConn() error {
+	Logger.Println("Checking server capabilities")
+
+	capabilities, err := c.GetCapabilities()
+	if err != nil {
+		return err
+	}
+
+	if !capabilities.StartSSL {
+		Logger.Println("-> Server does not support StartTLS")
+		Logger.Println("Aborting connection upgrade")
+
+		return nil // TODO: Return error
+	}
+
+	Logger.Println("-> Server supports StartTLS")
+	Logger.Println("Trying to start TLS negotiation")
+
+	c.WriteLine("STARTTLS")
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	logResponse(r)
+
+	var tlsConn *tls.Conn
+	if _, ok := r.(proto.Ok); ok {
+		Logger.Println("Starting TLS connection")
+
+		tlsConn, err = GetTLSConn(c.Conn)
+		if err != nil {
+			return err
+		}
+	}
+
+	c.Conn = tlsConn
+	c.Reader = bufio.NewReader(tlsConn)
+	c.Writer = bufio.NewWriter(tlsConn)
+
+	r, _, err = c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	logResponse(r)
+
+	return nil
 }
