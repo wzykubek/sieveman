@@ -140,3 +140,20 @@ func (c *Client) DeactivateScripts() error {
 
 	return c.ActivateScript("")
 }
+
+func (c *Client) RemoveScript(name string) error {
+	Logger.Printf("Trying to remove script")
+
+	c.WriteLine(fmt.Sprintf("DELETESCRIPT \"%s\"", name))
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	logResponse(r)
+
+	if r.Type() != "OK" {
+		return errors.New(r.Message())
+	}
+
+	return nil
+}
