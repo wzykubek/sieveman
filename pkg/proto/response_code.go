@@ -33,3 +33,20 @@ func (rc NonExistent) Message() string {
 func (rc NonExistent) Child() ResponseCode {
 	return rc.ChildCode
 }
+
+type Quota struct {
+	Msg       string
+	ChildCode ResponseCode
+}
+
+func (rc Quota) Type() string {
+	return "QUOTA"
+}
+
+func (rc Quota) Message() string {
+	return rc.Msg
+}
+
+func (rc Quota) Child() ResponseCode {
+	return rc.ChildCode
+}
