@@ -117,3 +117,26 @@ func (c *Client) PutScript(file *os.File, name string) error {
 
 	return nil
 }
+
+func (c *Client) ActivateScript(name string) error {
+	Logger.Println("Trying to activate script")
+
+	c.WriteLine(fmt.Sprintf("SETACTIVE \"%s\"", name))
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	logResponse(r)
+
+	if r.Type() != "OK" {
+		return errors.New(r.Message())
+	}
+
+	return nil
+}
+
+func (c *Client) DeactivateScripts() error {
+	Logger.Println("Trying to deactivate script")
+
+	return c.ActivateScript("")
+}
