@@ -54,19 +54,13 @@ func parseCapabilities(messages []string) (capb proto.Capabilities) {
 // GetCapabilities reads server capabilities.
 // It returns proto.Capabilities and error if any.
 func (c *Client) GetCapabilities() (capb proto.Capabilities, err error) {
-	err = c.WriteLine("CAPABILITY")
+	cmd := "CAPABILITY"
+	m, err := c.SendCommand(cmd)
 	if err != nil {
 		return capb, err
 	}
 
-	r, messages, err := c.ReadResponse()
-	if err != nil {
-		return capb, err
-	}
-
-	if _, ok := r.(proto.Ok); ok {
-		capb = parseCapabilities(messages)
-	}
+	capb = parseCapabilities(m)
 
 	return capb, nil
 }

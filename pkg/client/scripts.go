@@ -28,15 +28,10 @@ func parseScriptList(m []string) (scripts []proto.Script) {
 func (c *Client) GetScriptList() (scripts []proto.Script, err error) {
 	Logger.Println("Trying to obtain script list")
 
-	c.WriteLine("LISTSCRIPTS")
-	r, m, err := c.ReadResponse()
+	cmd := "LISTSCRIPTS"
+	m, err := c.SendCommand(cmd)
 	if err != nil {
 		return scripts, err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return scripts, errors.New(r.Message())
 	}
 
 	scripts = parseScriptList(m)
@@ -47,17 +42,13 @@ func (c *Client) GetScriptList() (scripts []proto.Script, err error) {
 func (c *Client) GetScriptLines(name string) (size int64, script []string, err error) {
 	Logger.Println("Trying to get script content")
 
-	c.WriteLine(fmt.Sprintf("GETSCRIPT \"%s\"", name))
-	r, m, err := c.ReadResponse()
+	cmd := fmt.Sprintf("GETSCRIPT \"%s\"", name)
+	m, err := c.SendCommand(cmd)
 	if err != nil {
 		return size, script, err
 	}
-	logResponse(r)
 
-	if r.Type() != "OK" {
-		return size, script, errors.New(r.Message())
-	}
-
+	// TODO: Consider changing it to proto.Script
 	size, _ = strconv.ParseInt(m[0], 10, 64) // TODO: Handle error
 	script = m[1 : len(m)-1]
 
@@ -67,15 +58,10 @@ func (c *Client) GetScriptLines(name string) (size int64, script []string, err e
 func (c *Client) CheckSpace(name string, size int64) error {
 	Logger.Println("Trying to check available space")
 
-	c.WriteLine(fmt.Sprintf("HAVESPACE \"%s\" %d", name, size))
-	r, _, err := c.ReadResponse()
+	cmd := fmt.Sprintf("HAVESPACE \"%s\" %d", name, size)
+	_, err := c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
 	}
 	// TODO: Handle Quota reponse code
 
@@ -104,15 +90,10 @@ func (c *Client) PutScript(file *os.File, name string) error {
 
 	script := string(fileContent)
 
-	c.WriteLine(fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script))
-	r, _, err := c.ReadResponse() // TODO: Fix handling of response when syntax is bad
+	cmd := fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script)
+	_, err = c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
 	}
 
 	return nil
@@ -121,15 +102,10 @@ func (c *Client) PutScript(file *os.File, name string) error {
 func (c *Client) ActivateScript(name string) error {
 	Logger.Println("Trying to activate script")
 
-	c.WriteLine(fmt.Sprintf("SETACTIVE \"%s\"", name))
-	r, _, err := c.ReadResponse()
+	cmd := fmt.Sprintf("SETACTIVE \"%s\"", name)
+	_, err := c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
 	}
 
 	return nil
@@ -144,15 +120,10 @@ func (c *Client) DeactivateScripts() error {
 func (c *Client) RemoveScript(name string) error {
 	Logger.Printf("Trying to remove script")
 
-	c.WriteLine(fmt.Sprintf("DELETESCRIPT \"%s\"", name))
-	r, _, err := c.ReadResponse()
+	cmd := fmt.Sprintf("DELETESCRIPT \"%s\"", name)
+	_, err := c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
 	}
 
 	return nil
@@ -161,15 +132,10 @@ func (c *Client) RemoveScript(name string) error {
 func (c *Client) RenameScript(oldName, newName string) error {
 	Logger.Printf("Trying to rename script")
 
-	c.WriteLine(fmt.Sprintf("RENAMESCRIPT \"%s\" \"%s\"", oldName, newName))
-	r, _, err := c.ReadResponse()
+	cmd := fmt.Sprintf("RENAMESCRIPT \"%s\" \"%s\"", oldName, newName)
+	_, err := c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
 	}
 
 	return nil
