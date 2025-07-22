@@ -157,3 +157,20 @@ func (c *Client) RemoveScript(name string) error {
 
 	return nil
 }
+
+func (c *Client) RenameScript(oldName, newName string) error {
+	Logger.Printf("Trying to rename script")
+
+	c.WriteLine(fmt.Sprintf("RENAMESCRIPT \"%s\" \"%s\"", oldName, newName))
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	logResponse(r)
+
+	if r.Type() != "OK" {
+		return errors.New(r.Message())
+	}
+
+	return nil
+}
