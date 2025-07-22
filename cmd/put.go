@@ -7,9 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var activate bool
+
 func init() {
 	putCmd.Flags().SortFlags = false
-	// TODO: Make default flag
+	putCmd.Flags().BoolVarP(&activate, "activate", "a", false, "set the uploaded script as active")
 	rootCmd.AddCommand(putCmd)
 }
 
@@ -34,10 +36,16 @@ var putCmd = &cobra.Command{
 		}
 		defer file.Close()
 
-		err = c.PutScript(file, remoteName)
-		if err != nil {
+		if err = c.PutScript(file, remoteName); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+
+		if activate {
+			if err = c.ActivateScript(remoteName); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 	},
 }
