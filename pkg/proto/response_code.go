@@ -50,3 +50,20 @@ func (rc Quota) Message() string {
 func (rc Quota) Child() ResponseCode {
 	return rc.ChildCode
 }
+
+type MaxSize struct {
+	Msg       string
+	ChildCode ResponseCode
+}
+
+func (rc MaxSize) Type() string {
+	return "QUOTA"
+}
+
+func (rc MaxSize) Message() string {
+	return rc.Msg
+}
+
+func (rc MaxSize) Child() ResponseCode {
+	return rc.ChildCode
+}

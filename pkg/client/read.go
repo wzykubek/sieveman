@@ -62,16 +62,22 @@ func parseResponseCode(codeStr string) proto.ResponseCode {
 	re := regexp.MustCompile(`^\((\S+)\s*("[^"]*")?\)$`)
 	matches := re.FindStringSubmatch(codeStr)
 
-	code := matches[1]
+	code := strings.Split(matches[1], "/")
 	msg := strings.Trim(matches[2], "\"")
 
-	switch code {
+	// TODO: Make it simpler, this is overengineered
+	switch code[0] {
 	case "TAG":
 		return proto.Tag{Msg: msg, ChildCode: nil}
 	case "NONEXISTENT":
 		return proto.NonExistent{Msg: "", ChildCode: nil}
 	case "QUOTA":
-		return proto.Quota{Msg: msg, ChildCode: nil}
+		switch code[1] {
+		case "MAXSIZE":
+			return proto.Quota{Msg: "", ChildCode: proto.MaxSize{Msg: msg, ChildCode: nil}}
+		default:
+			return proto.Quota{Msg: msg, ChildCode: nil}
+		}
 	default:
 		return nil
 	}
