@@ -1,3 +1,8 @@
+// TODO: Refactoring of whole reading mechanism is needed.
+// Responses should not have message included, only OK, NO or BYE.
+// All messages should be parsed and returned as separate fields.
+// Handling of both response patterns should be implemented.
+// Response codes is subject to change.
 package client
 
 import (
@@ -24,13 +29,25 @@ func parseResponse(respStr string) proto.Response {
 	// When P2 or "P3" is not present, it MUST return an empty string for those parts.
 	re := regexp.MustCompile(`^(\S+)\s*(\([^)]*\))?\s*("[^"]*")?$`)
 	matches := re.FindStringSubmatch(strings.TrimSpace(respStr))
-	if len(matches) <= 2 {
-		return nil
-	}
 
-	resp := matches[1]
-	code := parseResponseCode(matches[2])
-	msg := strings.Trim(matches[3], "\"")
+	var resp, msg string
+	var code proto.ResponseCode
+
+	if len(matches) <= 2 {
+		// Edge case: `P1 (P2) {bytes}\nP3`
+		if strings.HasPrefix(respStr, "NO ") || strings.HasPrefix(respStr, "BYE ") || strings.HasPrefix(respStr, "OK ") {
+			parts := strings.Split(respStr, " ")
+			resp = parts[0]
+			// TODO: It will break if there will be response code.
+			msg = strings.TrimSpace(parts[1]) // Temporary
+		} else {
+			return nil
+		}
+	} else {
+		resp = matches[1]
+		code = parseResponseCode(matches[2])
+		msg = strings.Trim(matches[3], "\"")
+	}
 
 	switch resp {
 	case "OK":
@@ -89,16 +106,25 @@ func (c *Client) ReadResponse() (_ proto.Response, messages []string, err error)
 	for {
 		var line string
 		line, err = c.Reader.ReadString('\n')
-		if c.Reader.Buffered() == 0 {
-			if resp := parseResponse(line); resp != nil {
-				return resp, messages, nil
-			}
-		}
 		if err != nil {
 			return nil, messages, err
 		}
 
 		if resp := parseResponse(line); resp != nil {
+			// Handle nested responses with 'P1 (P2) {bytes}\nP3' pattern
+			if matched, _ := regexp.MatchString(`^\{.*\}$`, resp.Message()); matched {
+				for {
+					line, err := c.Reader.ReadString('\n')
+					if err != nil {
+						return nil, messages, err
+					}
+					line = strings.TrimSpace(line)
+					if line == "" {
+						break
+					}
+					messages = append(messages, line)
+				}
+			}
 			return resp, messages, nil
 		} else {
 			messages = append(messages, line)

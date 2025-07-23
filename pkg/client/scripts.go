@@ -91,8 +91,11 @@ func (c *Client) PutScript(file *os.File, name string) error {
 	script := string(fileContent)
 
 	cmd := fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script)
-	_, err = c.SendCommand(cmd)
+	m, err := c.SendCommand(cmd)
 	if err != nil {
+		for _, msg := range m {
+			fmt.Println(msg)
+		}
 		return err
 	}
 
