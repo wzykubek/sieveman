@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 
 	"go.wzykubek.xyz/sieveman/internal/helpers"
@@ -19,7 +20,7 @@ func (c *Client) AuthPLAIN(login string, password string) error {
 	if !plainCap {
 		Logger.Println("-> Server does not support PLAIN authentication")
 		Logger.Println("Aborting authentication")
-		return nil
+		return errors.New("Server does not support PLAIN authentication")
 	}
 	Logger.Println("-> Server supports PLAIN authentication")
 	Logger.Println("Trying to authenticate")
