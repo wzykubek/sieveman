@@ -3,6 +3,7 @@ package client
 import (
 	"bufio"
 	"crypto/tls"
+	"errors"
 	"net"
 )
 
@@ -108,43 +109,42 @@ func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
 // UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
 // It returns error if any.
 func (c *Client) UpgradeConn() error {
+	Logger.Println("Checking if server supports StartTLS")
+
 	if !c.capabilities.StartSSL {
 		Logger.Println("-> Server does not support StartTLS")
 		Logger.Println("Aborting connection upgrade")
 
-		return nil // TODO: Return error
+		return errors.New("Server does not support StartTLS")
 	}
 
 	Logger.Println("-> Server supports StartTLS")
 	Logger.Println("Trying to start TLS negotiation")
 
-	c.WriteLine("STARTTLS")
-	r, _, err := c.ReadResponse()
-	if err != nil {
+	if _, err := c.SendCommand("STARTTLS"); err != nil {
 		return err
 	}
-	logResponse(r)
 
-	var tlsConn *tls.Conn
-	// TODO: Handle NO
-	if r.Name == "OK" {
-		Logger.Println("Starting TLS connection")
+	Logger.Println("Starting TLS connection")
 
-		tlsConn, err = GetTLSConn(c.Conn)
-		if err != nil {
-			return err
-		}
+	tlsConn, err := GetTLSConn(c.Conn)
+	if err != nil {
+		return err
 	}
 
 	c.Conn = tlsConn
 	c.Reader = bufio.NewReader(tlsConn)
 	c.Writer = bufio.NewWriter(tlsConn)
 
-	r, _, err = c.ReadResponse()
+	r, _, err := c.ReadResponse()
 	if err != nil {
 		return err
 	}
 	logResponse(r)
+
+	if r.Name != "OK" {
+		return errors.New(r.Message)
+	}
 
 	return nil
 }
