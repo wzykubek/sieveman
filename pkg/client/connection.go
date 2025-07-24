@@ -93,9 +93,10 @@ func GetTCPConn(host string, port int) (conn *net.TCPConn, err error) {
 
 // GetTLSConn connects to server using TLS.
 // It returns TLS connection and error if any.
-func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
+func GetTLSConn(plainConn net.Conn, serverName string) (conn *tls.Conn, err error) {
 	conn = tls.Client(plainConn, &tls.Config{
-		InsecureSkipVerify: true, // TODO
+		ServerName: serverName,
+		MinVersion: tls.VersionTLS12,
 	})
 
 	err = conn.Handshake()
@@ -108,7 +109,7 @@ func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
 
 // UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
 // It returns error if any.
-func (c *Client) UpgradeConn() error {
+func (c *Client) UpgradeConn(serverName string) error {
 	Logger.Println("Checking if server supports StartTLS")
 
 	if !c.capabilities.StartSSL {
@@ -127,7 +128,7 @@ func (c *Client) UpgradeConn() error {
 
 	Logger.Println("Starting TLS connection")
 
-	tlsConn, err := GetTLSConn(c.Conn)
+	tlsConn, err := GetTLSConn(c.Conn, serverName)
 	if err != nil {
 		return err
 	}

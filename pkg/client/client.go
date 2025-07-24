@@ -40,7 +40,7 @@ func NewClient(host string, port int) (*Client, error) {
 		return nil, errors.New(r.Message)
 	}
 
-	if err := c.UpgradeConn(); err != nil {
+	if err := c.UpgradeConn(host); err != nil {
 		return c, err
 	}
 
