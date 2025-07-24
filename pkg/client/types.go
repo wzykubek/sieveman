@@ -1,5 +1,20 @@
-// Package proto implements ManageSieve protocol specific types especially for server replies.
-package proto
+package client
+
+type Response struct {
+	Name    string
+	Code    ResponseCode
+	Message string
+}
+
+type ResponseCode struct {
+	Name    string
+	Message string
+}
+
+type Script struct {
+	Name   string
+	Active bool
+}
 
 type Capabilities struct {
 	Implementation string

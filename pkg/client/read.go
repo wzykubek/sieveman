@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"io"
 	"strings"
-
-	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
 func readBytes(reader *bufio.Reader, byteCount int) (content string, err error) {
@@ -75,7 +73,7 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 }
 
 // TODO: Rewrite this function and capabilities parser
-func (c *Client) ReadCapabilities() (cap proto.Capabilities, err error) {
+func (c *Client) ReadCapabilities() (cap Capabilities, err error) {
 	var linesCompat []string
 	for {
 		line, err := c.Reader.ReadString('\n')

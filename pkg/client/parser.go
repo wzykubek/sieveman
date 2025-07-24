@@ -7,22 +7,6 @@ import (
 	"strings"
 )
 
-type Response struct {
-	Name    string
-	Code    ResponseCode
-	Message string
-}
-
-type ResponseCode struct {
-	Name    string
-	Message string
-}
-
-type Script struct {
-	Name   string
-	Active bool
-}
-
 type Parser struct {
 	input    string
 	position int

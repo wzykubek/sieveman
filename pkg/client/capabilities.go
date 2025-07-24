@@ -5,12 +5,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
-func parseCapabilities(messages []string) (capb proto.Capabilities) {
-	capb.StartSSL = false
+func parseCapabilities(messages []string) (cap Capabilities) {
+	cap.StartSSL = false
 
 	for _, msg := range messages {
 		re := regexp.MustCompile(`"([^"]+)"`)
@@ -54,7 +52,7 @@ func parseCapabilities(messages []string) (capb proto.Capabilities) {
 
 // GetCapabilities reads server capabilities.
 // It returns proto.Capabilities and error if any.
-func (c *Client) GetCapabilities() (capb proto.Capabilities, err error) {
+func (c *Client) GetCapabilities() (cap Capabilities, err error) {
 	cmd := "CAPABILITY"
 	err = c.WriteLine(cmd)
 	if err != nil {
