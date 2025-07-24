@@ -50,11 +50,32 @@ func NewClient(host string, port int) (*Client, error) {
 		return c, err
 	}
 
-	cap, err = c.GetCapabilities()
+	err = c.UpdateCapabilities()
 	if err != nil {
 		return nil, err
 	}
-	c.capabilities = cap
 
 	return c, nil
+}
+
+func (c *Client) UpdateCapabilities() error {
+	cmd := "CAPABILITY"
+	err := c.WriteLine(cmd)
+	if err != nil {
+		return err
+	}
+	cap, err := c.ReadCapabilities()
+	if err != nil {
+		return err
+	}
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return err
+	}
+	if r.Name != "OK" {
+		return errors.New(r.Message)
+	}
+
+	c.capabilities = cap
+	return nil
 }

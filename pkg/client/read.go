@@ -72,20 +72,19 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 	return response, outputs, nil
 }
 
-// TODO: Rewrite this function and capabilities parser
 func (c *Client) ReadCapabilities() (cap Capabilities, err error) {
-	var linesCompat []string
 	for {
 		line, err := c.Reader.ReadString('\n')
 		if err != nil {
 			return cap, err
 		}
-		linesCompat = append(linesCompat, line)
-		// Warning: Quick workaround, refactoring of parseCapabilities needed
-		if strings.HasPrefix(line, "\"VERSION") {
+		if err := parseCapability(&cap, line); err != nil {
+			return cap, err
+		}
+		if cap.Version != "" {
 			break
 		}
 	}
-	cap = parseCapabilities(linesCompat)
+
 	return cap, nil
 }

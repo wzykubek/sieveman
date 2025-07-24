@@ -158,3 +158,44 @@ func parseScriptItem(line string) (script Script, err error) {
 
 	return script, nil
 }
+
+func parseCapability(cap *Capabilities, line string) error {
+	re := regexp.MustCompile(`"([^"]+)"`)
+	matches := re.FindAllString(line, 2)
+	if matches == nil {
+		return errors.New("Invalid capability")
+	}
+
+	var k, v string
+	if len(matches) >= 1 {
+		k = strings.Trim(matches[0], "\"")
+	}
+	if len(matches) >= 2 {
+		v = strings.Trim(matches[1], "\"")
+	}
+
+	switch k {
+	case "IMPLEMENTATION":
+		cap.Implementation = v
+	case "SASL":
+		cap.SASL = strings.Fields(v)
+	case "SIEVE":
+		cap.Sieve = strings.Fields(v)
+	case "STARTTLS":
+		cap.StartSSL = true
+	case "MAXREDIRECTS":
+		cap.MaxRedirects, _ = strconv.Atoi(v)
+	case "NOTIFY":
+		cap.Notify = strings.Fields(v)
+	case "LANGUAGE":
+		cap.Language = v
+	case "OWNER":
+		cap.Owner = v
+	case "VERSION":
+		cap.Version = v
+	default:
+		return errors.New("Invalid capability")
+	}
+
+	return nil
+}
