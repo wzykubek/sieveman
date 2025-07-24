@@ -108,14 +108,7 @@ func GetTLSConn(plainConn net.Conn) (conn *tls.Conn, err error) {
 // UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
 // It returns error if any.
 func (c *Client) UpgradeConn() error {
-	Logger.Println("Checking server capabilities")
-
-	capabilities, err := c.GetCapabilities()
-	if err != nil {
-		return err
-	}
-
-	if !capabilities.StartSSL {
+	if !c.capabilities.StartSSL {
 		Logger.Println("-> Server does not support StartTLS")
 		Logger.Println("Aborting connection upgrade")
 
@@ -147,10 +140,11 @@ func (c *Client) UpgradeConn() error {
 	c.Reader = bufio.NewReader(tlsConn)
 	c.Writer = bufio.NewWriter(tlsConn)
 
-	_, err = c.GetCapabilities()
+	r, _, err = c.ReadResponse()
 	if err != nil {
 		return err
 	}
+	logResponse(r)
 
 	return nil
 }

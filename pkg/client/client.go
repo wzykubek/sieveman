@@ -9,9 +9,10 @@ import (
 )
 
 type Client struct {
-	Conn   net.Conn
-	Reader *bufio.Reader
-	Writer *bufio.Writer
+	Conn         net.Conn
+	Reader       *bufio.Reader
+	Writer       *bufio.Writer
+	capabilities Capabilities
 }
 
 // NewClient is a top level function to create new *Client. It handles all necessary checks,
@@ -29,10 +30,11 @@ func NewClient(host string, port int) (*Client, error) {
 		Writer: bufio.NewWriter(tcpConn),
 	}
 
-	_, err = c.ReadCapabilities()
+	cap, err := c.ReadCapabilities()
 	if err != nil {
 		return nil, err
 	}
+	c.capabilities = cap
 
 	r, _, err := c.ReadResponse()
 	if err != nil {
@@ -47,6 +49,12 @@ func NewClient(host string, port int) (*Client, error) {
 	if err := c.UpgradeConn(); err != nil {
 		return c, err
 	}
+
+	cap, err = c.GetCapabilities()
+	if err != nil {
+		return nil, err
+	}
+	c.capabilities = cap
 
 	return c, nil
 }

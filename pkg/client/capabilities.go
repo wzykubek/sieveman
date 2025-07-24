@@ -14,7 +14,7 @@ func parseCapabilities(messages []string) (cap Capabilities) {
 		re := regexp.MustCompile(`"([^"]+)"`)
 		matches := re.FindAllString(msg, 2)
 		if matches == nil {
-			return capb
+			return cap
 		}
 
 		var k, v string
@@ -27,27 +27,27 @@ func parseCapabilities(messages []string) (cap Capabilities) {
 
 		switch k {
 		case "IMPLEMENTATION":
-			capb.Implementation = v
+			cap.Implementation = v
 		case "SASL":
-			capb.SASL = strings.Fields(v)
+			cap.SASL = strings.Fields(v)
 		case "SIEVE":
-			capb.Sieve = strings.Fields(v)
+			cap.Sieve = strings.Fields(v)
 		case "STARTTLS":
-			capb.StartSSL = true
+			cap.StartSSL = true
 		case "MAXREDIRECTS":
-			capb.MaxRedirects, _ = strconv.Atoi(v)
+			cap.MaxRedirects, _ = strconv.Atoi(v)
 		case "NOTIFY":
-			capb.Notify = strings.Fields(v)
+			cap.Notify = strings.Fields(v)
 		case "LANGUAGE":
-			capb.Language = v
+			cap.Language = v
 		case "OWNER":
-			capb.Owner = v
+			cap.Owner = v
 		case "VERSION":
-			capb.Version = v
+			cap.Version = v
 		}
 	}
 
-	return capb
+	return cap
 }
 
 // GetCapabilities reads server capabilities.
@@ -56,19 +56,19 @@ func (c *Client) GetCapabilities() (cap Capabilities, err error) {
 	cmd := "CAPABILITY"
 	err = c.WriteLine(cmd)
 	if err != nil {
-		return capb, err
+		return cap, err
 	}
-	capb, err = c.ReadCapabilities()
+	cap, err = c.ReadCapabilities()
 	if err != nil {
-		return capb, err
+		return cap, err
 	}
 	r, _, err := c.ReadResponse()
 	if err != nil {
-		return capb, err
+		return cap, err
 	}
 	if r.Name != "OK" {
-		return capb, errors.New(r.Message)
+		return cap, errors.New(r.Message)
 	}
 
-	return capb, nil
+	return cap, nil
 }

@@ -1,7 +1,6 @@
 package client
 
 import (
-	"errors"
 	"fmt"
 
 	"go.wzykubek.xyz/sieveman/internal/helpers"
@@ -10,18 +9,8 @@ import (
 // AuthPLAIN uses PLAIN SASL to authenticate with server if that method is supported.
 // It returns parsed response and error if any.
 func (c *Client) AuthPLAIN(login string, password string) error {
-	Logger.Println("Checking server capabilities")
-	capabilities, err := c.ReadCapabilities()
-	if err != nil {
-		return err
-	}
-	r, _, err := c.ReadResponse()
-	if err != nil {
-		return err
-	}
-
 	var plainCap bool
-	for _, v := range capabilities.SASL {
+	for _, v := range c.capabilities.SASL {
 		if v == "PLAIN" {
 			plainCap = true
 		}
@@ -36,15 +25,10 @@ func (c *Client) AuthPLAIN(login string, password string) error {
 	Logger.Println("Trying to authenticate")
 
 	encCred := helpers.EncCredentials(login, password)
-	c.WriteLine(fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, encCred))
-	r, _, err = c.ReadResponse()
+	cmd := fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, encCred)
+	_, err := c.SendCommand(cmd)
 	if err != nil {
 		return err
-	}
-	logResponse(r)
-
-	if r.Name != "OK" {
-		return errors.New(r.Message)
 	}
 
 	return nil
