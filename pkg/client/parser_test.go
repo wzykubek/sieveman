@@ -2,7 +2,7 @@ package client
 
 import "testing"
 
-func TestParseResponse(t *testing.T) {
+func TestParseInlineResponse(t *testing.T) {
 	tests := []struct {
 		input         string
 		expectedResp  Response
