@@ -18,23 +18,20 @@ func (c *Client) WriteLine(str string) error {
 	return nil
 }
 
-func (c *Client) SendCommand(cmd string) (out []string, err error) {
+func (c *Client) SendCommand(cmd string) (outputs []string, err error) {
 	if err := c.WriteLine(cmd); err != nil {
-		return out, err
+		return outputs, err
 	}
 
-	resp, out, err := c.ReadResponse()
+	resp, outputs, err := c.ReadResponse()
 	if err != nil {
-		return out, err
+		return outputs, err
 	}
 	logResponse(resp)
 
-	// TODO: Reponse codes should cause errors
-	// Almost all response codes are returned with NO/BYE response, but
-	// some are returned with OK response: (TAG, WARNINGS, SASL)
 	if resp.Name != "OK" {
-		return out, errors.New(resp.Message)
+		return outputs, errors.New(resp.Message)
 	}
 
-	return out, nil
+	return outputs, nil
 }
