@@ -30,12 +30,6 @@ func NewClient(host string, port int) (*Client, error) {
 		Writer: bufio.NewWriter(tcpConn),
 	}
 
-	cap, err := c.ReadCapabilities()
-	if err != nil {
-		return nil, err
-	}
-	c.capabilities = cap
-
 	r, _, err := c.ReadResponse()
 	if err != nil {
 		return nil, err
@@ -50,32 +44,11 @@ func NewClient(host string, port int) (*Client, error) {
 		return c, err
 	}
 
-	err = c.UpdateCapabilities()
+	// Updates Client capabilities
+	_, err = c.SendCommand("CAPABILITY")
 	if err != nil {
 		return nil, err
 	}
 
 	return c, nil
-}
-
-func (c *Client) UpdateCapabilities() error {
-	cmd := "CAPABILITY"
-	err := c.WriteLine(cmd)
-	if err != nil {
-		return err
-	}
-	cap, err := c.ReadCapabilities()
-	if err != nil {
-		return err
-	}
-	r, _, err := c.ReadResponse()
-	if err != nil {
-		return err
-	}
-	if r.Name != "OK" {
-		return errors.New(r.Message)
-	}
-
-	c.capabilities = cap
-	return nil
 }

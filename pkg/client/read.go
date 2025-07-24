@@ -52,7 +52,9 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 		}
 
 		if strings.HasPrefix(line, `"`) {
-			outputs = append(outputs, line)
+			if err := parseCapability(&c.capabilities, line); err != nil {
+				outputs = append(outputs, line)
+			}
 			continue
 		}
 
@@ -74,21 +76,4 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 	}
 
 	return response, outputs, nil
-}
-
-func (c *Client) ReadCapabilities() (cap Capabilities, err error) {
-	for {
-		line, err := c.Reader.ReadString('\n')
-		if err != nil {
-			return cap, err
-		}
-		if err := parseCapability(&cap, line); err != nil {
-			return cap, err
-		}
-		if cap.Version != "" {
-			break
-		}
-	}
-
-	return cap, nil
 }
