@@ -2,11 +2,13 @@ package client
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"io"
 	"strings"
 )
 
-func readBytes(reader *bufio.Reader, byteCount int) (content string, err error) {
+func readNBytes(reader *bufio.Reader, byteCount int) (content string, err error) {
 	buffer := make([]byte, byteCount)
 	_, err = io.ReadFull(reader, buffer)
 	if err != nil {
@@ -42,7 +44,7 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 		}
 
 		if bytes != 0 {
-			out, err := readBytes(c.Reader, bytes)
+			out, err := readNBytes(c.Reader, bytes)
 			if err != nil {
 				return Response{}, outputs, err
 			}
@@ -64,7 +66,7 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 		}
 
 		if bytes != 0 {
-			out, err := readBytes(c.Reader, bytes)
+			out, err := readNBytes(c.Reader, bytes)
 			if err != nil {
 				return Response{}, outputs, err
 			}
@@ -76,4 +78,35 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 	}
 
 	return response, outputs, nil
+}
+
+// WriteLine is a low level method to write a line to Writer.
+// It returns error if any.
+func (c *Client) WriteLine(str string) error {
+	_, err := fmt.Fprintf(c.Writer, "%s\r\n", str)
+	if err != nil {
+		return err
+	}
+
+	c.Writer.Flush()
+
+	return nil
+}
+
+func (c *Client) SendCommand(cmd string) (outputs []string, err error) {
+	if err := c.WriteLine(cmd); err != nil {
+		return outputs, err
+	}
+
+	resp, outputs, err := c.ReadResponse()
+	if err != nil {
+		return outputs, err
+	}
+	logResponse(resp)
+
+	if resp.Name != "OK" {
+		return outputs, errors.New(resp.Message)
+	}
+
+	return outputs, nil
 }
