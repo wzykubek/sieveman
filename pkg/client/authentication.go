@@ -1,11 +1,15 @@
 package client
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
-
-	"go.wzykubek.xyz/sieveman/internal/helpers"
 )
+
+func encCredentials(login string, password string) string {
+	data := []byte("\x00" + login + "\x00" + password)
+	return base64.StdEncoding.EncodeToString(data)
+}
 
 // AuthPLAIN uses PLAIN SASL to authenticate with server if that method is supported.
 // It returns parsed response and error if any.
@@ -27,7 +31,7 @@ func (c *Client) AuthPLAIN(login string, password string) error {
 	Logger.Println("-> Server supports PLAIN authentication")
 	Logger.Println("Trying to authenticate")
 
-	encCred := helpers.EncCredentials(login, password)
+	encCred := encCredentials(login, password)
 	cmd := fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, encCred)
 	_, err := c.SendCommand(cmd)
 	if err != nil {

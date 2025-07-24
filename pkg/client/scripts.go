@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	"go.wzykubek.xyz/sieveman/internal/helpers"
 )
 
 func (c *Client) GetScriptList() (scripts []Script, err error) {
@@ -55,10 +53,12 @@ func (c *Client) CheckSpace(name string, size int64) error {
 }
 
 func (c *Client) PutScript(file *os.File, name string) error {
-	size, err := helpers.GetByteSize(file)
+	fileInfo, err := file.Stat()
 	if err != nil {
 		return err
 	}
+
+	size := fileInfo.Size()
 	if size == 0 {
 		return errors.New("File is empty")
 	}
