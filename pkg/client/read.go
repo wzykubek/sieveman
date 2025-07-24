@@ -1,8 +1,3 @@
-// TODO: Refactoring of whole reading mechanism is needed.
-// Responses should not have message included, only OK, NO or BYE.
-// All messages should be parsed and returned as separate fields.
-// Handling of both response patterns should be implemented.
-// Response codes is subject to change.
 package client
 
 import (
@@ -24,39 +19,58 @@ func readBytes(reader *bufio.Reader, byteCount int) (content string, err error) 
 }
 
 // ReadResponse is a low level method to read and parse response from server.
-// It returns parsed response, slice of messages and error if any.
-func (c *Client) ReadResponse() (response Response, rawOutputLines []string, err error) {
+// It returns parsed response, slice of outputs and error if any.
+// `outputs` needs to be handled depending on the command type.
+// Examples:
+// - In case of reading response from LISTSCRIPTS command then each output
+// is a script line which need to be parsed.
+// - In case of reading response from GETSCRIPT ocmmand then it will be only one item
+// with whole script content.
+// TODO: Capabilities reading
+func (c *Client) ReadResponse() (response Response, outputs []string, err error) {
 	for {
 		line, err := c.Reader.ReadString('\n')
 		if err != nil {
-			return Response{}, rawOutputLines, err
+			return Response{}, outputs, err
 		}
 
 		if strings.HasPrefix(line, "OK") || strings.HasPrefix(line, "NO") || strings.HasPrefix(line, "BYE") {
 			var bytes int
-			response, bytes, err = ParseLine(strings.TrimSpace(line))
+			response, bytes, err = parseResponse(strings.TrimSpace(line))
 			if err != nil {
-				return Response{}, rawOutputLines, err
+				return Response{}, outputs, err
 			}
 
 			if bytes != 0 {
 				content, err := readBytes(c.Reader, bytes)
 				if err != nil {
-					return Response{}, rawOutputLines, err
+					return Response{}, outputs, err
 				}
 				response.Message = content
 			}
 
 			break
 		} else {
-			// TODO: LISTSCRIPT output does not return number of bytes
-			// and in current implementation it is easier to read by
-			// lines and ignore bytes.
-			rawOutputLines = append(rawOutputLines, line)
+			// TODO: Test in different scenarios for LISTSCRIPTS
+			// e.g. with byte size in the middle, ReadResponse should handle that
+			p := Parser{input: line, position: 0}
+			bytes, err := p.parseBytes()
+			if err != nil {
+				return Response{}, outputs, err
+			}
+			if bytes != 0 {
+				out, err := readBytes(c.Reader, bytes)
+				if err != nil {
+					return Response{}, outputs, err
+				}
+				outputs = append(outputs, out)
+				continue
+			}
+			outputs = append(outputs, line)
 		}
 	}
 
-	return response, rawOutputLines, nil
+	return response, outputs, nil
 }
 
 // TODO: Rewrite this function and capabilities parser

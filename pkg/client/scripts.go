@@ -4,55 +4,41 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
-	"strconv"
 
 	"go.wzykubek.xyz/sieveman/internal/helpers"
-	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
-func parseScriptList(m []string) (scripts []proto.Script) {
-	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
-	for _, v := range m {
-		matches := re.FindStringSubmatch(v)
-		if matches != nil {
-			name := matches[1]
-			active := len(matches[2]) > 0
-			scripts = append(scripts, proto.Script{Name: name, Active: active})
-		}
-	}
-
-	return scripts
-}
-
-func (c *Client) GetScriptList() (scripts []proto.Script, err error) {
+func (c *Client) GetScriptList() (scripts []Script, err error) {
 	Logger.Println("Trying to obtain script list")
 
 	cmd := "LISTSCRIPTS"
-	m, err := c.SendCommand(cmd)
+	lines, err := c.SendCommand(cmd)
 	if err != nil {
 		return scripts, err
 	}
 
-	scripts = parseScriptList(m)
+	for _, line := range lines {
+		out, err := parseScriptItem(line)
+		if err != nil {
+			return scripts, err
+		}
+		scripts = append(scripts, out)
+	}
 
 	return scripts, nil
 }
 
-func (c *Client) GetScriptLines(name string) (size int64, script []string, err error) {
+func (c *Client) GetScriptContent(name string) (content string, err error) {
 	Logger.Println("Trying to get script content")
 
 	cmd := fmt.Sprintf("GETSCRIPT \"%s\"", name)
-	m, err := c.SendCommand(cmd)
+	out, err := c.SendCommand(cmd)
+	content = out[0]
 	if err != nil {
-		return size, script, err
+		return content, err
 	}
 
-	// TODO: Consider changing it to proto.Script
-	size, _ = strconv.ParseInt(m[0], 10, 64) // TODO: Handle error
-	script = m[1 : len(m)-1]
-
-	return size, script, nil
+	return content, nil
 }
 
 func (c *Client) CheckSpace(name string, size int64) error {

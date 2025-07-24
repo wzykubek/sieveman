@@ -12,8 +12,3 @@ type Capabilities struct {
 	Owner          string
 	Version        string
 }
-
-type Script struct {
-	Name   string
-	Active bool
-}

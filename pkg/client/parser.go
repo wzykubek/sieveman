@@ -1,6 +1,8 @@
 package client
 
 import (
+	"errors"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -15,6 +17,11 @@ type Response struct {
 type ResponseCode struct {
 	Name    string
 	Message string
+}
+
+type Script struct {
+	Name   string
+	Active bool
 }
 
 type Parser struct {
@@ -33,8 +40,8 @@ func (p *Parser) skipWhitespace() {
 	}
 }
 
-// parseResponse returns OK, NO or BYE string
-func (p *Parser) parseResponse() (response string) {
+// parseResponseName returns OK, NO or BYE string
+func (p *Parser) parseResponseName() (response string) {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -123,10 +130,10 @@ func (p *Parser) parseBytes() (bytes int, err error) {
 	return bytes, nil
 }
 
-func ParseLine(line string) (response Response, bytes int, err error) {
+func parseResponse(line string) (response Response, bytes int, err error) {
 	p := &Parser{input: line, position: 0}
 
-	responseName := p.parseResponse()
+	responseName := p.parseResponseName()
 
 	p.skipWhitespace()
 
@@ -154,4 +161,18 @@ func ParseLine(line string) (response Response, bytes int, err error) {
 		Bytes:   bytes,
 	}
 	return response, bytes, nil
+}
+
+func parseScriptItem(line string) (script Script, err error) {
+	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
+	matches := re.FindStringSubmatch(line)
+	if matches == nil {
+		return script, errors.New("Can't parse script item")
+	}
+
+	name := matches[1]
+	active := len(matches[2]) > 0
+	script = Script{Name: name, Active: active}
+
+	return script, nil
 }

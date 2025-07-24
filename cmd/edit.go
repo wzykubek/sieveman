@@ -21,7 +21,7 @@ var editCmd = &cobra.Command{
 		defer c.Close()
 
 		scriptName := args[0]
-		_, lines, err := c.GetScriptLines(scriptName)
+		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -35,8 +35,10 @@ var editCmd = &cobra.Command{
 
 		buf := bufio.NewWriter(tmpFile)
 
-		for _, l := range lines {
-			buf.WriteString(l)
+		_, err = buf.WriteString(content)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
 
 		if err := buf.Flush(); err != nil {
@@ -55,6 +57,7 @@ var editCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// TODO: Do not run if script was not modified
 		if err = c.PutScript(tmpFile, scriptName); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
