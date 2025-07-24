@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -55,12 +56,21 @@ func parseCapabilities(messages []string) (capb proto.Capabilities) {
 // It returns proto.Capabilities and error if any.
 func (c *Client) GetCapabilities() (capb proto.Capabilities, err error) {
 	cmd := "CAPABILITY"
-	m, err := c.SendCommand(cmd)
+	err = c.WriteLine(cmd)
 	if err != nil {
 		return capb, err
 	}
-
-	capb = parseCapabilities(m)
+	capb, err = c.ReadCapabilities()
+	if err != nil {
+		return capb, err
+	}
+	r, _, err := c.ReadResponse()
+	if err != nil {
+		return capb, err
+	}
+	if r.Name != "OK" {
+		return capb, errors.New(r.Message)
+	}
 
 	return capb, nil
 }

@@ -11,7 +11,11 @@ import (
 // It returns parsed response and error if any.
 func (c *Client) AuthPLAIN(login string, password string) error {
 	Logger.Println("Checking server capabilities")
-	capabilities, err := c.GetCapabilities()
+	capabilities, err := c.ReadCapabilities()
+	if err != nil {
+		return err
+	}
+	r, _, err := c.ReadResponse()
 	if err != nil {
 		return err
 	}
@@ -33,14 +37,14 @@ func (c *Client) AuthPLAIN(login string, password string) error {
 
 	encCred := helpers.EncCredentials(login, password)
 	c.WriteLine(fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, encCred))
-	r, _, err := c.ReadResponse()
+	r, _, err = c.ReadResponse()
 	if err != nil {
 		return err
 	}
-
 	logResponse(r)
-	if r.Type() != "OK" {
-		return errors.New(r.Message())
+
+	if r.Name != "OK" {
+		return errors.New(r.Message)
 	}
 
 	return nil

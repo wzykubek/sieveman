@@ -29,14 +29,19 @@ func NewClient(host string, port int) (*Client, error) {
 		Writer: bufio.NewWriter(tcpConn),
 	}
 
+	_, err = c.ReadCapabilities()
+	if err != nil {
+		return nil, err
+	}
+
 	r, _, err := c.ReadResponse()
 	if err != nil {
 		return nil, err
 	}
 	logResponse(r)
 
-	if r.Type() != "OK" {
-		return nil, errors.New(r.Message())
+	if r.Name != "OK" {
+		return nil, errors.New(r.Message)
 	}
 
 	if err := c.UpgradeConn(); err != nil {

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
 const (
@@ -22,18 +20,18 @@ func colorize(s string, c string) string {
 	return fmt.Sprintf("%s%s%s", c, s, reset)
 }
 
-func logResponse(r proto.Response) {
+func logResponse(r Response) {
 	var c string
-	switch r.(type) {
-	case proto.Ok:
+	switch r.Name {
+	case "OK":
 		c = yellow
-	case proto.No:
+	case "NO":
 		c = red
-	case proto.Bye:
+	case "BYE":
 		c = blue
 	default:
 		c = reset
 	}
 
-	Logger.Printf("%s => %s", colorize(r.Type(), c), r.Message())
+	Logger.Printf("%s => %s", colorize(r.Name, c), r.Message)
 }

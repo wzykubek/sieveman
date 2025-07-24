@@ -32,8 +32,8 @@ func (c *Client) SendCommand(cmd string) (out []string, err error) {
 	// TODO: Reponse codes should cause errors
 	// Almost all response codes are returned with NO/BYE response, but
 	// some are returned with OK response: (TAG, WARNINGS, SASL)
-	if resp.Type() != "OK" {
-		return out, errors.New(resp.Message())
+	if resp.Name != "OK" {
+		return out, errors.New(resp.Message)
 	}
 
 	return out, nil

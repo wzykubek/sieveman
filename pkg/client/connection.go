@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"crypto/tls"
 	"net"
-
-	"go.wzykubek.xyz/sieveman/pkg/proto"
 )
 
 func resolveIPv4(host string) (net.IP, error) {
@@ -135,7 +133,8 @@ func (c *Client) UpgradeConn() error {
 	logResponse(r)
 
 	var tlsConn *tls.Conn
-	if _, ok := r.(proto.Ok); ok {
+	// TODO: Handle NO
+	if r.Name == "OK" {
 		Logger.Println("Starting TLS connection")
 
 		tlsConn, err = GetTLSConn(c.Conn)
@@ -148,11 +147,10 @@ func (c *Client) UpgradeConn() error {
 	c.Reader = bufio.NewReader(tlsConn)
 	c.Writer = bufio.NewWriter(tlsConn)
 
-	r, _, err = c.ReadResponse()
+	_, err = c.GetCapabilities()
 	if err != nil {
 		return err
 	}
-	logResponse(r)
 
 	return nil
 }
