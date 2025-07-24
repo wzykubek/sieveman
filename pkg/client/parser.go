@@ -11,7 +11,6 @@ type Response struct {
 	Name    string
 	Code    ResponseCode
 	Message string
-	Bytes   int
 }
 
 type ResponseCode struct {
@@ -52,7 +51,7 @@ func (p *Parser) parseResponseName() (response string) {
 		p.position++
 	}
 
-	response = p.input[start:p.position]
+	response = strings.ToUpper(p.input[start:p.position])
 
 	return response
 }
@@ -77,7 +76,7 @@ func (p *Parser) parseReponseCode() (code string, message string) {
 		// QUOTA/MAXSCRIPTS
 		parentheses := p.input[start:p.position]
 		parts := strings.SplitN(parentheses, " ", 2)
-		code = parts[0]
+		code = strings.ToUpper(parts[0])
 		if len(parts) == 2 {
 			message = strings.Trim(parts[1], "\"")
 		}
@@ -130,7 +129,7 @@ func (p *Parser) parseBytes() (bytes int, err error) {
 	return bytes, nil
 }
 
-func parseResponse(line string) (response Response, bytes int, err error) {
+func parseInlineResponse(line string) (response Response, bytes int, err error) {
 	p := &Parser{input: line, position: 0}
 
 	responseName := p.parseResponseName()
@@ -158,7 +157,6 @@ func parseResponse(line string) (response Response, bytes int, err error) {
 		Name:    responseName,
 		Code:    responseCode,
 		Message: responseMessage,
-		Bytes:   bytes,
 	}
 	return response, bytes, nil
 }

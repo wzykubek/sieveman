@@ -34,9 +34,10 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 			return Response{}, outputs, err
 		}
 
+		// TODO: Responses does not need to be uppercase
 		if strings.HasPrefix(line, "OK") || strings.HasPrefix(line, "NO") || strings.HasPrefix(line, "BYE") {
 			var bytes int
-			response, bytes, err = parseResponse(strings.TrimSpace(line))
+			response, bytes, err = parseInlineResponse(strings.TrimSpace(line))
 			if err != nil {
 				return Response{}, outputs, err
 			}
