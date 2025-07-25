@@ -8,8 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var forceWrite bool
+
 func init() {
 	getCmd.Flags().SortFlags = false
+	getCmd.Flags().BoolVarP(&forceWrite, "force", "f", false, "force overwrite existing file")
 	rootCmd.AddCommand(getCmd)
 }
 
@@ -23,10 +26,9 @@ You can use '-' character as file name to print to stdout.`,
 		defer c.Close()
 
 		scriptName := args[0]
-		outFile := scriptName
-		// TODO: Add force flag and do not overwrite existing file
+		outFilename := scriptName
 		if len(args) > 1 {
-			outFile = args[1]
+			outFilename = args[1]
 		}
 
 		content, err := c.GetScriptContent(scriptName)
@@ -37,10 +39,18 @@ You can use '-' character as file name to print to stdout.`,
 
 		var f *os.File
 		defer f.Close()
-		if outFile == "-" {
+
+		if outFilename == "-" {
 			f = os.Stdout
 		} else {
-			f, err = os.Create(outFile)
+			if _, err := os.Stat(outFilename); err == nil {
+				if !forceWrite {
+					fmt.Printf("Error: File %s exists\n", outFilename)
+					os.Exit(1)
+				}
+			}
+
+			f, err = os.Create(outFilename)
 			if err != nil {
 				fmt.Printf("Error: %s\n", err)
 				os.Exit(1)
