@@ -13,7 +13,7 @@ func init() {
 
 var activateCmd = &cobra.Command{
 	Use:   "activate <script_name>",
-	Short: "Activate a script with given name.",
+	Short: "Activate a script with given name",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]

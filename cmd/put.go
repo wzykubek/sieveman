@@ -17,8 +17,7 @@ func init() {
 
 var putCmd = &cobra.Command{
 	Use:   "put <local_name> [remote_name]",
-	Short: "Upload a local script to the server.",
-	Long:  `This command uploads a local script to the server with optional name argument.`,
+	Short: "Upload a local script to the server",
 	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		defer c.Close()

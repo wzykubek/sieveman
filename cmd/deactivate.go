@@ -13,7 +13,7 @@ func init() {
 
 var deactivateCmd = &cobra.Command{
 	Use:   "deactivate",
-	Short: "Deactivate all scripts.",
+	Short: "Deactivate all scripts",
 	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := c.DeactivateScripts(); err != nil {

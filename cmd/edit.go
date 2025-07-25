@@ -15,7 +15,7 @@ func init() {
 
 var editCmd = &cobra.Command{
 	Use:   "edit <script_name>",
-	Short: "Edit specified script remotely in default editor.",
+	Short: "Edit specified script remotely in default editor",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		defer c.Close()
@@ -57,7 +57,6 @@ var editCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// TODO: Do not run if script was not modified
 		if err = c.PutScript(tmpFile, scriptName); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
