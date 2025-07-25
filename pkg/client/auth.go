@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func encCredentials(login string, password string) string {
+func encBase64Cred(login string, password string) string {
 	data := []byte("\x00" + login + "\x00" + password)
 	return base64.StdEncoding.EncodeToString(data)
 }
@@ -31,10 +31,9 @@ func (c *Client) AuthPLAIN(login string, password string) error {
 	Logger.Println("-> Server supports PLAIN authentication")
 	Logger.Println("Trying to authenticate")
 
-	encCred := encCredentials(login, password)
-	cmd := fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, encCred)
-	_, err := c.SendCommand(cmd)
-	if err != nil {
+	cred := encBase64Cred(login, password)
+	cmd := fmt.Sprintf(`AUTHENTICATE "PLAIN" "%s"`, cred)
+	if _, err := c.SendCommand(cmd); err != nil {
 		return err
 	}
 
