@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-type Parser struct {
+type parser struct {
 	input    string
 	position int
 }
 
 // skipWhitespace skips whitespace characters in the input string.
-func (p *Parser) skipWhitespace() {
+func (p *parser) skipWhitespace() {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -24,7 +24,7 @@ func (p *Parser) skipWhitespace() {
 }
 
 // parseResponseName returns OK, NO or BYE string.
-func (p *Parser) parseResponseName() (response string) {
+func (p *parser) parseResponseName() (response string) {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -41,7 +41,7 @@ func (p *Parser) parseResponseName() (response string) {
 }
 
 // parseResponseCode parses response code: e.g. `(CODE "string")`.
-func (p *Parser) parseReponseCode() (code string, message string) {
+func (p *parser) parseReponseCode() (code string, message string) {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -72,7 +72,7 @@ func (p *Parser) parseReponseCode() (code string, message string) {
 }
 
 // parseQuotedMessage parses quoted message: e.g. `"some string"`.
-func (p *Parser) parseQuotedMessage() (message string) {
+func (p *parser) parseQuotedMessage() (message string) {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -92,7 +92,7 @@ func (p *Parser) parseQuotedMessage() (message string) {
 }
 
 // parseBytes parses bytes: e.g. `{123}`.
-func (p *Parser) parseBytes() (bytes int, err error) {
+func (p *parser) parseBytes() (bytes int, err error) {
 	if p.position >= len(p.input) {
 		return
 	}
@@ -117,7 +117,7 @@ func (p *Parser) parseBytes() (bytes int, err error) {
 
 // parseInlineResponse parses inline response: e.g. `OK (CODE "string") {123}`.
 func parseInlineResponse(line string) (response Response, bytes int, err error) {
-	p := &Parser{input: line, position: 0}
+	p := &parser{input: line, position: 0}
 
 	responseName := p.parseResponseName()
 

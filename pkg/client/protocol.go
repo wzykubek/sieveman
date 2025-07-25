@@ -35,7 +35,7 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 			continue
 		}
 
-		p := Parser{input: line, position: 0}
+		p := parser{input: line, position: 0}
 		bytes, err := p.parseBytes()
 		if err != nil {
 			return Response{}, outputs, err
