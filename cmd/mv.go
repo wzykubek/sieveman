@@ -20,7 +20,7 @@ var mvCmd = &cobra.Command{
 		newName := args[1]
 
 		if err := c.RenameScript(oldName, newName); err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 	},

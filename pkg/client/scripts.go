@@ -61,7 +61,7 @@ func (c *Client) PutScript(file *os.File, name string) error {
 
 	size := fileInfo.Size()
 	if size == 0 {
-		return errors.New("File is empty")
+		return fmt.Errorf("File '%s' is empty\n", file.Name())
 	}
 
 	if err = c.CheckSpace(name, size); err != nil {
@@ -86,7 +86,7 @@ func (c *Client) PutScript(file *os.File, name string) error {
 }
 
 func (c *Client) ActivateScript(name string) error {
-	Logger.Println("Trying to activate script")
+	Logger.Printf("Trying to activate '%s' script\n", name)
 
 	cmd := fmt.Sprintf(`SETACTIVE "%s"`, name)
 	if _, err := c.SendCommand(cmd); err != nil {
@@ -97,13 +97,13 @@ func (c *Client) ActivateScript(name string) error {
 }
 
 func (c *Client) DeactivateScripts() error {
-	Logger.Println("Trying to deactivate script")
+	Logger.Println("Trying to deactivate all scripts")
 
 	return c.ActivateScript("")
 }
 
 func (c *Client) RemoveScript(name string) error {
-	Logger.Printf("Trying to remove script")
+	Logger.Printf("Trying to remove '%s' script\n", name)
 
 	cmd := fmt.Sprintf(`DELETESCRIPT "%s"`, name)
 	if _, err := c.SendCommand(cmd); err != nil {
@@ -114,7 +114,7 @@ func (c *Client) RemoveScript(name string) error {
 }
 
 func (c *Client) RenameScript(oldName, newName string) error {
-	Logger.Printf("Trying to rename script")
+	Logger.Printf("Trying to rename '%s' script to '%s'\n", oldName, newName)
 
 	cmd := fmt.Sprintf(`RENAMESCRIPT "%s" "%s"`, oldName, newName)
 	if _, err := c.SendCommand(cmd); err != nil {

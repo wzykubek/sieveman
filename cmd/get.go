@@ -31,7 +31,7 @@ You can use '-' character as file name to print to stdout.`,
 
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
@@ -42,7 +42,7 @@ You can use '-' character as file name to print to stdout.`,
 		} else {
 			f, err = os.Create(outFile)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Printf("Error: %s\n", err)
 				os.Exit(1)
 			}
 		}
@@ -50,9 +50,8 @@ You can use '-' character as file name to print to stdout.`,
 		buf := bufio.NewWriter(f)
 		defer buf.Flush()
 
-		_, err = buf.WriteString(content)
-		if err != nil {
-			fmt.Println(err)
+		if _, err = buf.WriteString(content); err != nil {
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 	},

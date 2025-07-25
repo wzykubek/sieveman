@@ -23,13 +23,13 @@ var editCmd = &cobra.Command{
 		scriptName := args[0]
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), "sieveman")
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
@@ -37,12 +37,12 @@ var editCmd = &cobra.Command{
 
 		_, err = buf.WriteString(content)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
 		if err := buf.Flush(); err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
@@ -53,12 +53,12 @@ var editCmd = &cobra.Command{
 		editorProc.Stderr = os.Stderr
 
 		if err = editorProc.Run(); err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 
 		if err = c.PutScript(tmpFile, scriptName); err != nil {
-			fmt.Println(err)
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 	},

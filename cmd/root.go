@@ -48,7 +48,7 @@ var rootCmd = &cobra.Command{
 
 		err = c.AuthPLAIN(username, password)
 		if err != nil {
-			fmt.Println("Authentication failed!")
+			fmt.Printf("Error: %s\n", err)
 			os.Exit(1)
 		}
 	},
