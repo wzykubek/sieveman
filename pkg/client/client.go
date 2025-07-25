@@ -44,11 +44,5 @@ func NewClient(host string, port int) (*Client, error) {
 		return c, err
 	}
 
-	// Updates Client capabilities
-	_, err = c.SendCommand("CAPABILITY")
-	if err != nil {
-		return nil, err
-	}
-
 	return c, nil
 }
