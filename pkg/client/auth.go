@@ -12,7 +12,6 @@ func encBase64Cred(login string, password string) string {
 }
 
 // AuthPLAIN uses PLAIN SASL to authenticate with server if that method is supported.
-// It returns parsed response and error if any.
 func (c *Client) AuthPLAIN(login string, password string) error {
 	Logger.Println("Checking if server supports PLAIN authentication")
 

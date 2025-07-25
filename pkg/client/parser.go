@@ -12,7 +12,7 @@ type Parser struct {
 	position int
 }
 
-// skipWhitespace skips whitespace characters in the input string
+// skipWhitespace skips whitespace characters in the input string.
 func (p *Parser) skipWhitespace() {
 	if p.position >= len(p.input) {
 		return
@@ -23,7 +23,7 @@ func (p *Parser) skipWhitespace() {
 	}
 }
 
-// parseResponseName returns OK, NO or BYE string
+// parseResponseName returns OK, NO or BYE string.
 func (p *Parser) parseResponseName() (response string) {
 	if p.position >= len(p.input) {
 		return
@@ -40,7 +40,7 @@ func (p *Parser) parseResponseName() (response string) {
 	return response
 }
 
-// parseResponseCode parses response code: `(CODE "string")`
+// parseResponseCode parses response code: e.g. `(CODE "string")`.
 func (p *Parser) parseReponseCode() (code string, message string) {
 	if p.position >= len(p.input) {
 		return
@@ -71,6 +71,7 @@ func (p *Parser) parseReponseCode() (code string, message string) {
 	return code, message
 }
 
+// parseQuotedMessage parses quoted message: e.g. `"some string"`.
 func (p *Parser) parseQuotedMessage() (message string) {
 	if p.position >= len(p.input) {
 		return
@@ -90,6 +91,7 @@ func (p *Parser) parseQuotedMessage() (message string) {
 	return message
 }
 
+// parseBytes parses bytes: e.g. `{123}`.
 func (p *Parser) parseBytes() (bytes int, err error) {
 	if p.position >= len(p.input) {
 		return
@@ -113,6 +115,7 @@ func (p *Parser) parseBytes() (bytes int, err error) {
 	return bytes, nil
 }
 
+// parseInlineResponse parses inline response: e.g. `OK (CODE "string") {123}`.
 func parseInlineResponse(line string) (response Response, bytes int, err error) {
 	p := &Parser{input: line, position: 0}
 
@@ -145,6 +148,7 @@ func parseInlineResponse(line string) (response Response, bytes int, err error) 
 	return response, bytes, nil
 }
 
+// parseScriptItem parses script item: e.g. `"script.sieve" ACTIVE`.
 func parseScriptItem(line string) (script Script, err error) {
 	re := regexp.MustCompile(`"([^"]+)"(\s*ACTIVE)?`)
 	matches := re.FindStringSubmatch(line)
@@ -159,6 +163,7 @@ func parseScriptItem(line string) (script Script, err error) {
 	return script, nil
 }
 
+// parseCapability parses capability: e.g. `"STARTTLS"` or `"SIEVE" "imapfilter"`.
 func parseCapability(cap *Capabilities, line string) error {
 	re := regexp.MustCompile(`"([^"]+)"`)
 	matches := re.FindAllString(line, 2)

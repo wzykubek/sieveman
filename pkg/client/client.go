@@ -17,7 +17,6 @@ type Client struct {
 
 // NewClient is a top level function to create new *Client. It handles all necessary checks,
 // connects to server over plain TCP connection and performs connection upgrade to TLS.
-// It returns *Client and error if any.
 func NewClient(host string, port int) (*Client, error) {
 	tcpConn, err := GetTCPConn(host, port)
 	if err != nil {

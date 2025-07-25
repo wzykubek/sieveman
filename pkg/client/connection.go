@@ -49,8 +49,7 @@ func attemptConn(host string, port int) (*net.TCPConn, error) {
 	return conn, nil
 }
 
-// Close closes connection.
-// It returns error if any.
+// Close closes existing connection with server.
 func (c *Client) Close() error {
 	return c.Conn.Close()
 }
@@ -58,7 +57,6 @@ func (c *Client) Close() error {
 // GetTCPConn performs DNS-SRV lookup to host (RFC 5804 Section 1.8.1) to obtain IP address
 // and port of ManageSieve protocol. In case of failure it reads generic A record and uses
 // port as fallback (RFC 5804 Section 1.8.2).
-// It returns valid TCP connection and error if any.
 func GetTCPConn(host string, port int) (conn *net.TCPConn, err error) {
 	Logger.Printf("Trying to lookup SRV records of %s host\n", host)
 
@@ -92,7 +90,6 @@ func GetTCPConn(host string, port int) (conn *net.TCPConn, err error) {
 }
 
 // GetTLSConn connects to server using TLS.
-// It returns TLS connection and error if any.
 func GetTLSConn(plainConn net.Conn, serverName string) (conn *tls.Conn, err error) {
 	conn = tls.Client(plainConn, &tls.Config{
 		ServerName: serverName,
@@ -107,8 +104,7 @@ func GetTLSConn(plainConn net.Conn, serverName string) (conn *tls.Conn, err erro
 	return conn, nil
 }
 
-// UpgradeConn upgrades existing plain TCP connection of client to TLS using StartTLS.
-// It returns error if any.
+// UpgradeConn is checking if server supports StartTLS and performs connection upgrade.
 func (c *Client) UpgradeConn(serverName string) error {
 	Logger.Println("Checking if server supports StartTLS")
 

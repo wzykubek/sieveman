@@ -18,14 +18,12 @@ func readNBytes(reader *bufio.Reader, byteCount int) (content string, err error)
 	return string(buffer), nil
 }
 
-// ReadResponse is a low level method to read and parse response from server.
-// It returns parsed response, slice of outputs and error if any.
-// `outputs` needs to be handled depending on the command type.
-// Examples:
-// - In case of reading response from LISTSCRIPTS command then each output
-// is a script line which need to be parsed.
-// - In case of reading response from GETSCRIPT ocmmand then it will be only one item
-// with whole script content.
+// ReadResponse reads and handles all responses from server, including errors and capabilities.
+// Capabilities are parsed and stored in the client's capabilities field, but response is returned.
+// Optional additional outputs are used in two scenarios:
+// - listings scripts with LISTSCRIPTS - each line as separate item, additional parsing needed
+// - reading script content with GETSCRIPT - one item with whole script content
+// It is not recommended to use this function directly. SendCommand should be used instead.
 func (c *Client) ReadResponse() (response Response, outputs []string, err error) {
 	for {
 		line, err := c.Reader.ReadString('\n')
@@ -81,7 +79,7 @@ func (c *Client) ReadResponse() (response Response, outputs []string, err error)
 }
 
 // WriteLine is a low level method to write a line to Writer.
-// It returns error if any.
+// It is recommended to use SendCommand instead.
 func (c *Client) WriteLine(str string) error {
 	_, err := fmt.Fprintf(c.Writer, "%s\r\n", str)
 	if err != nil {
@@ -93,6 +91,8 @@ func (c *Client) WriteLine(str string) error {
 	return nil
 }
 
+// SendCommand sends a command to the server and reads the response.
+// It is combination of WriteLine and ReadResponse with additional checks.
 func (c *Client) SendCommand(cmd string) (outputs []string, err error) {
 	if err := c.WriteLine(cmd); err != nil {
 		return outputs, err
