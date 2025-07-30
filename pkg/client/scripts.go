@@ -77,7 +77,8 @@ func (c *Client) PutScript(file *os.File, name string) error {
 
 	script := string(fileContent)
 
-	cmd := fmt.Sprintf(`PUTSCRIPT "%s" {%d+}\n%s`, name, size, script)
+	// New line character is not escaped if `` notation is used
+	cmd := fmt.Sprintf("PUTSCRIPT \"%s\" {%d+}\n%s", name, size, script)
 	if _, err = c.SendCommand(cmd); err != nil {
 		return err
 	}
