@@ -1,10 +1,13 @@
 # Sieveman
-Universal ManageSieve protocol client. It can be used as CLI tool or as library as well. Currently works in script mode, but interactive mode will be available in future.
+Universal ManageSieve protocol client. It can be used as CLI tool or as library as well.
+It works in two modes - script and interactive.
 
 ---
 
 ## Usage
 Command naming convention is taken from common *nix tools, so you will probably feel like in home. However there is some documentation with examples below.
+
+If you will run `sieveman` without any arguments it will start interactive mode. Keep in mind that you need to pass at least credentials like shown below.
 
 ### Authentication
 When using any command you need to pass credentials. You can create recursive alias to `sieveman` command with following options.
