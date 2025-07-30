@@ -16,6 +16,9 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Sieveman %s\n", version)
 	},
+	// Bypass hooks and avoid unnecessary connections
+	PersistentPreRun:  func(cmd *cobra.Command, args []string) {},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
