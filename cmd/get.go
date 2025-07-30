@@ -23,8 +23,6 @@ var getCmd = &cobra.Command{
 You can use '-' character as file name to print to stdout.`,
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer c.Close()
-
 		scriptName := args[0]
 		outFilename := scriptName
 		if len(args) > 1 {

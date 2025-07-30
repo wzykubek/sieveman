@@ -20,8 +20,6 @@ var putCmd = &cobra.Command{
 	Short: "Upload a local script to the server",
 	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer c.Close()
-
 		filename := args[0]
 		remoteName := filename
 		if len(args) > 1 {

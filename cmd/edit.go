@@ -18,8 +18,6 @@ var editCmd = &cobra.Command{
 	Short: "Edit specified script remotely in default editor",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		defer c.Close()
-
 		scriptName := args[0]
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {

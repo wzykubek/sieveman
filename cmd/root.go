@@ -52,8 +52,10 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		c.Close()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		defer c.Close()
 
 		// TODO: Interactive part
 	},

@@ -25,8 +25,6 @@ var lsCmd = &cobra.Command{
 	Short: "List all available scripts",
 	Long:  "This command lists all available scripts and shows activation indicator.",
 	Run: func(cmd *cobra.Command, args []string) {
-		defer c.Close()
-
 		scripts, err := c.GetScriptList()
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
