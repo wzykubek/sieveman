@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 	"os/exec"
 
@@ -21,27 +21,23 @@ var editCmd = &cobra.Command{
 		scriptName := args[0]
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), "sieveman")
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		buf := bufio.NewWriter(tmpFile)
 
 		_, err = buf.WriteString(content)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		if err := buf.Flush(); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		editor := os.Getenv("EDITOR")
@@ -51,13 +47,11 @@ var editCmd = &cobra.Command{
 		editorProc.Stderr = os.Stderr
 
 		if err = editorProc.Run(); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		if err = c.PutScript(tmpFile, scriptName); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 	},
 }

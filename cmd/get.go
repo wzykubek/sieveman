@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -31,8 +31,7 @@ You can use '-' character as file name to print to stdout.`,
 
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		var f *os.File
@@ -43,15 +42,13 @@ You can use '-' character as file name to print to stdout.`,
 		} else {
 			if _, err := os.Stat(outFilename); err == nil {
 				if !forceWrite {
-					fmt.Printf("Error: File %s exists\n", outFilename)
-					os.Exit(1)
+					log.Fatalf("Error: File %s exists\n", outFilename)
 				}
 			}
 
 			f, err = os.Create(outFilename)
 			if err != nil {
-				fmt.Printf("Error: %s\n", err)
-				os.Exit(1)
+				log.Fatalf("Error: %s\n", err)
 			}
 		}
 
@@ -59,8 +56,7 @@ You can use '-' character as file name to print to stdout.`,
 		defer buf.Flush()
 
 		if _, err = buf.WriteString(content); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 	},
 }

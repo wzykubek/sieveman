@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -28,20 +28,17 @@ var putCmd = &cobra.Command{
 
 		file, err := os.Open(filename)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 		defer file.Close()
 
 		if err = c.PutScript(file, remoteName); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		if activate {
 			if err = c.ActivateScript(remoteName); err != nil {
-				fmt.Printf("Error: %s\n", err)
-				os.Exit(1)
+				log.Fatalf("Error: %s\n", err)
 			}
 		}
 	},

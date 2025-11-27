@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -20,8 +19,7 @@ var mvCmd = &cobra.Command{
 		newName := args[1]
 
 		if err := c.RenameScript(oldName, newName); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 	},
 }

@@ -37,8 +37,9 @@ func init() {
 var rootCmd = &cobra.Command{
 	Use:   "sieveman",
 	Short: "Sieve manager",
-	Long:  "Universal ManageSieve protocol client",
+	Long:  "Universal ManageSieve protocol client.",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		log.SetFlags(0)
 		if !verbose {
 			client.Logger.SetOutput(io.Discard)
 		}
@@ -60,13 +61,12 @@ var rootCmd = &cobra.Command{
 		var err error
 		c, err = client.NewClient(host, port)
 		if err != nil {
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 
 		err = c.AuthPLAIN(username, password)
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
@@ -91,8 +91,7 @@ var rootCmd = &cobra.Command{
 			),
 		})
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 		defer rl.Close()
 
@@ -190,7 +189,6 @@ version                             Display the program version`)
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 }

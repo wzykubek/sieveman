@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -18,13 +17,11 @@ var activateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]
 		if scriptName == "" {
-			fmt.Println("Error: Script name cannot be empty.")
-			os.Exit(1)
+			log.Fatalln("Error: script name cannot be empty")
 		}
 
 		if err := c.ActivateScript(scriptName); err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
+			log.Fatalf("Error: %s\n", err)
 		}
 	},
 }
