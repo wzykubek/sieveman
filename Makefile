@@ -1,63 +1,62 @@
-BIN=sieveman
+BIN := sieveman
+MODULE := $(shell go list -m)
+VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' || echo "dev")
 
-VERSION=$(shell git describe --tags --always --dirty | sed 's/^v//')
-LDFLAGS=-linkmode=external -X go.wzykubek.xyz/${BIN}/cmd.version=${VERSION}
+LDFLAGS = -linkmode=external -X $(MODULE)/cmd.version=$(VERSION)
 
-DESTDIR=
-PREFIX=/usr/local
+DESTDIR =
+PREFIX = /usr/local
 
-.PHONY: all
-all: | clean build completions
+.PHONY: all clean fmt vet test build completions install install-bin install-completions uninstall
 
-.PHONY: clean
+all: clean build
+
 clean:
-	rm -rf dist/*
+	rm -rf dist
 
-.PHONY: fmt
 fmt:
 	go fmt ./...
 
-.PHONY: vet
 vet:
 	go vet ./...
 
-.PHONY: test
 test:
 	go test ./...
 
-.PHONY: build
-build: $(shell find . -name "*.go" -type f)
+build:
 	mkdir -p dist
 	go build \
 		-trimpath \
 		-mod=readonly \
 		-modcacherw \
 		-buildmode=pie \
-		-ldflags '${LDFLAGS}' \
-		-o dist/${BIN} \
+		-ldflags "$(LDFLAGS)" \
+		-o dist/$(BIN) \
 		./main.go
 
-.PHONY: completions
-completions:
+completions: build
 	mkdir -p dist/completions
-	for shell in bash zsh fish powershell; do \
-		dist/${BIN} completion $$shell > dist/completions/$$shell; \
+	for sh in bash zsh fish powershell; do \
+		dist/$(BIN) completion $$sh > dist/completions/$$sh; \
 	done
 
-.PHONY: install
-install:
-	install -Dm755 dist/${BIN} ${DESTDIR}${PREFIX}/bin/${BIN}
-	install -Dm644 dist/completions/bash \
-		${DESTDIR}${PREFIX}/share/bash-completion/completions/${BIN}
-	install -Dm644 dist/completions/zsh \
-		${DESTDIR}${PREFIX}/share/zsh/site-functions/_${BIN}
-	install -Dm644 dist/completions/fish \
-		${DESTDIR}${PREFIX}/share/fish/vendor_completions.d/${BIN}.fish
-	install -Dm644 LICENSE ${DESTDIR}${PREFIX}/share/licenses/${BIN}/LICENSE
+install: install-bin
+	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
 
-.PHONY: uninstall
+install-bin:
+	install -Dm755 dist/$(BIN) $(DESTDIR)$(PREFIX)/bin/$(BIN)
+
+install-completions:
+	install -Dm644 dist/completions/bash \
+		$(DESTDIR)$(PREFIX)/share/bash-completion/completions/$(BIN)
+	install -Dm644 dist/completions/zsh \
+		$(DESTDIR)$(PREFIX)/share/zsh/site-functions/_$(BIN)
+	install -Dm644 dist/completions/fish \
+		$(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d/$(BIN).fish
+
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/${BIN}
-	rm -f ${DESTDIR}${PREFIX}/share/bash-completion/completions/${BIN}
-	rm -f ${DESTDIR}${PREFIX}/share/zsh/site-functions/_${BIN}
-	rm -f ${DESTDIR}${PREFIX}/share/fish/vendor_completions.d/${BIN}.fish
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(BIN)
+	rm -f $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
+	rm -f $(DESTDIR)$(PREFIX)/share/bash-completion/completions/$(BIN)
+	rm -f $(DESTDIR)$(PREFIX)/share/zsh/site-functions/_$(BIN)
+	rm -f $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d/$(BIN).fish
