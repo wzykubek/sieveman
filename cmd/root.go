@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 
@@ -40,6 +41,20 @@ var rootCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			client.Logger.SetOutput(io.Discard)
+		}
+
+		// There is an option to mark flag as required using
+		// cobra builtin method. However, that method cannot
+		// be used in this scenario, because it is carried
+		// into effect after PersistentPreRun execution.
+		if host == "" {
+			log.Fatalln("Error: host is not specified")
+		}
+		if username == "" {
+			log.Fatalln("Error: username is not specified")
+		}
+		if password == "" {
+			log.Fatalln("Error: password is not specified")
 		}
 
 		var err error
