@@ -9,7 +9,7 @@ PREFIX = /usr/local
 
 .PHONY: all clean fmt vet test build completions install install-bin install-completions uninstall
 
-all: clean build
+all: clean build completions
 
 clean:
 	rm -rf dist
@@ -34,13 +34,13 @@ build:
 		-o dist/$(BIN) \
 		./main.go
 
-completions: build
+completions:
 	mkdir -p dist/completions
 	for sh in bash zsh fish powershell; do \
 		dist/$(BIN) completion $$sh > dist/completions/$$sh; \
 	done
 
-install: install-bin
+install: install-bin install-completions
 	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
 
 install-bin:
