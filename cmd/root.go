@@ -193,6 +193,9 @@ version                             Display the program version`)
 	},
 }
 
+// Root command export for use with man page generator.
+func Root() *cobra.Command { return rootCmd }
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalln(err)
