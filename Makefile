@@ -7,7 +7,7 @@ LDFLAGS = -linkmode=external -X $(MODULE)/cmd.version=$(VERSION)
 DESTDIR =
 PREFIX = /usr/local
 
-.PHONY: all clean fmt vet test build completions install install-bin install-completions uninstall
+.PHONY: all clean fmt vet test build completions docs install install-bin install-completions uninstall
 
 all: clean build completions
 
@@ -39,6 +39,10 @@ completions:
 	for sh in bash zsh fish powershell; do \
 		dist/$(BIN) completion $$sh > dist/completions/$$sh; \
 	done
+
+docs:
+	mkdir -p docs/man
+	go run ./tools/build-man > ./docs/man/sieveman.1
 
 install: install-bin install-completions
 	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
