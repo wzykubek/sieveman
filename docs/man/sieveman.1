@@ -1,0 +1,112 @@
+.TH SIEVEMAN 1 "2025-11-28" "sieveman" "ManageSieve client"
+.SH NAME
+sieveman - ManageSieve client
+.SH SYNOPSIS
+\fBsieveman\fP [\fIoptions\&.\&.\&.\fP] [\fIargument\&.\&.\&.\fP]
+.SH DESCRIPTION
+This tool allows you to list, download, edit and create Sieve filters on specified e-mail server\&.
+.PP
+.PP
+It works in two modes: command line and interactive shell\&.
+.PP
+You need to pass at least --host, --username and --password to use any further command (exclude: help, completion and version)\&.
+.PP
+.PP
+If you do not specify the command, you will enter interactive mode instead\&.
+.SH OPTIONS
+.TP
+\fB-H, --host\fP
+host
+.TP
+\fB-p, --password\fP
+password
+.TP
+\fB-P, --port\fP
+port
+.TP
+\fB-u, --username\fP
+username [email address]
+.TP
+\fB-v, --verbose\fP
+verbose
+.SH COMMANDS
+.TP
+\fBactivate\fP <script_name>
+.RS 4
+Activate a script with given name\&. Keep in mind that in most cases only one script will be active at a time, so when there was an active script, it will be deactivated by a server\&.
+.RE
+.TP
+\fBcompletion\fP [bash|zsh|fish|powershell]
+.RS 4
+This command generates shell completions\&. Generated script is written to stdout\&.
+.RE
+.TP
+\fBdeactivate\fP
+.RS 4
+Only one script can be active at a time, so this command simply deactivates active script\&.
+.RE
+.TP
+\fBedit\fP <script_name>
+.RS 4
+This command combines get and put together\&. Use it to directly edit remote scripts in your default editor specified with EDITOR environment variable\&.
+.RE
+.TP
+\fBget\fP <script_name> [output_file]
+.RS 4
+This command downloads specified script and saves it to given location\&. You can use '-' character as a file name to print script content to stdout instead\&.
+.RE
+.TP
+\fBOPTIONS\fP
+.RS 4
+\fB-f, --force\fP
+force overwrite existing file
+.RE
+.TP
+\fBls\fP
+.RS 4
+This command lists all available scripts and shows indicator next to the active script if any\&.
+.RE
+.TP
+\fBOPTIONS\fP
+.RS 4
+\fB--active\fP
+show only active script
+.TP
+\fB--no-indicator\fP
+do not show active indicator
+.RE
+.TP
+\fBmv\fP <old_name> <new_name>
+.RS 4
+This command renames remote scripts on server\&.
+.RE
+.TP
+\fBput\fP <local_name> [remote_name]
+.RS 4
+You can use this command to upload local script\&. If remote name is not specified, script will be uploaded with the same name as local file\&.  When you want to make changes to remote script and upload it immediately you should consider using edit command instead\&.
+.RE
+.TP
+\fBOPTIONS\fP
+.RS 4
+\fB-a, --activate\fP
+mark the uploaded script as active
+.RE
+.TP
+\fBrm\fP <script_name>
+.RS 4
+Remove remote script on server\&. This operation is irreversible, be careful\&.
+.RE
+.TP
+\fBversion\fP
+.RS 4
+Show app version
+.RE
+.SH EXAMPLES
+.TP
+sieveman -H "imap\&.example\&.com" -u "jdoe@example\&.com" -p "$(qpg -qd password\&.txt\&.asc)" [command]
+.SH AUTHOR
+Wiktor Zykubek <dev at wzykubek dot xyz>
+.SH HOMEPAGE
+https://github\&.com/wzykubek/sieveman
+.SH LICENSE
+ISC
