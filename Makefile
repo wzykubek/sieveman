@@ -7,7 +7,7 @@ LDFLAGS = -linkmode=external -X $(MODULE)/cmd.version=$(VERSION)
 DESTDIR =
 PREFIX = /usr/local
 
-.PHONY: all clean fmt vet test build completions docs install install-bin install-completions uninstall
+.PHONY: all clean fmt vet test build completions docs install install-bin install-completions install-docs uninstall
 
 all: clean build completions
 
@@ -44,7 +44,7 @@ docs:
 	mkdir -p docs/man
 	go run ./tools/build-man > ./docs/man/sieveman.1
 
-install: install-bin install-completions
+install: install-bin install-completions install-docs
 	install -Dm644 LICENSE $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
 
 install-bin:
@@ -58,9 +58,14 @@ install-completions:
 	install -Dm644 dist/completions/fish \
 		$(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d/$(BIN).fish
 
+install-docs: docs
+	install -d $(DESTDIR)$(PREFIX)/share/man/man1
+	gzip -9 < docs/man/$(BIN).1 > $(DESTDIR)$(PREFIX)/share/man/man1/$(BIN).1.gz
+
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(BIN)
 	rm -f $(DESTDIR)$(PREFIX)/share/licenses/$(BIN)/LICENSE
 	rm -f $(DESTDIR)$(PREFIX)/share/bash-completion/completions/$(BIN)
 	rm -f $(DESTDIR)$(PREFIX)/share/zsh/site-functions/_$(BIN)
 	rm -f $(DESTDIR)$(PREFIX)/share/fish/vendor_completions.d/$(BIN).fish
+	rm -f $(DESTDIR)$(PREFIX)/share/man/man1/$(BIN).1.gz
