@@ -12,7 +12,8 @@ func init() {
 
 var activateCmd = &cobra.Command{
 	Use:   "activate <script_name>",
-	Short: "Activate a script with given name",
+	Short: "Activate a script",
+	Long:  "Activate a script with given name. Keep in mind that in most cases only one script will be active at a time, so when there was an active script, it will be deactivated by a server.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]

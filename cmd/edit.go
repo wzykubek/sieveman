@@ -16,6 +16,7 @@ func init() {
 var editCmd = &cobra.Command{
 	Use:   "edit <script_name>",
 	Short: "Edit specified script remotely in default editor",
+	Long:  "This command combines get and put together. Use it to directly edit remote scripts in your default editor specified with EDITOR environment variable.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]

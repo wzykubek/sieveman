@@ -13,6 +13,7 @@ func init() {
 var rmCmd = &cobra.Command{
 	Use:   "rm <script_name>",
 	Short: "Remove a script with the given name",
+	Long:  "Remove remote script on server. This operation is irreversible, be careful.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]

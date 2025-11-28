@@ -13,6 +13,7 @@ func init() {
 var mvCmd = &cobra.Command{
 	Use:   "mv <old_name> <new_name>",
 	Short: "Rename script",
+	Long:  "This command renames remote scripts on server.",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		oldName := args[0]

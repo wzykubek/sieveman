@@ -17,10 +17,10 @@ func init() {
 }
 
 var getCmd = &cobra.Command{
-	Use:   "get <script_name> [output_file*]",
+	Use:   "get <script_name> [output_file]",
 	Short: "Download specified script to given path",
 	Long: `This command downloads specified script and saves it to given location.
-You can use '-' character as file name to print to stdout.`,
+You can use '-' character as a file name to print script content to stdout instead.`,
 	Args: cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		scriptName := args[0]

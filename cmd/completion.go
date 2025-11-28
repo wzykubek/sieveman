@@ -8,7 +8,8 @@ import (
 
 var completionCmd = &cobra.Command{
 	Use:       "completion [bash|zsh|fish|powershell]",
-	Short:     "Generate shell completion scripts.",
+	Short:     "Generate shell completion scripts",
+	Long:      "This command generates shell completions. Generated script is written to stdout.",
 	ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
 	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	Run: func(cmd *cobra.Command, args []string) {

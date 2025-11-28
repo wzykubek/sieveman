@@ -12,7 +12,7 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show the version",
+	Short: "Show app version",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Sieveman %s\n", version)
 	},

@@ -23,7 +23,7 @@ func init() {
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List all available scripts",
-	Long:  "This command lists all available scripts and shows activation indicator.",
+	Long:  "This command lists all available scripts and shows indicator next to the active script if any.",
 	Run: func(cmd *cobra.Command, args []string) {
 		scripts, err := c.GetScriptList()
 		if err != nil {

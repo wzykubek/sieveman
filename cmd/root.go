@@ -36,8 +36,14 @@ func init() {
 
 var rootCmd = &cobra.Command{
 	Use:   "sieveman",
-	Short: "Sieve manager",
-	Long:  "Universal ManageSieve protocol client.",
+	Short: "ManageSieve client",
+	Long: `This tool allows you to list, download, edit and create Sieve filters on specified e-mail server.
+
+It works in two modes: command line and interactive shell.
+You need to pass at least --host, --username and --password to use any further command (exclude: help, completion and version).
+
+If you do not specify the command, you will enter interactive mode instead.`,
+	Example: `sieveman -H "imap.example.com" -u "jdoe@example.com" -p "$(qpg -qd password.txt.asc)" [command]`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.SetFlags(0)
 		if !verbose {
