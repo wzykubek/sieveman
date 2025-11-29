@@ -2,7 +2,7 @@ BIN := sieveman
 MODULE := $(shell go list -m)
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' || echo "dev")
 
-LDFLAGS = -linkmode=external -X $(MODULE)/cmd.version=$(VERSION)
+BUILD_FLAGS = -a -ldflags "-s -w -X $(MODULE)/cmd.version=$(VERSION)" -trimpath
 
 DESTDIR =
 PREFIX = /usr/local
@@ -25,14 +25,7 @@ test:
 
 build:
 	mkdir -p dist
-	go build \
-		-trimpath \
-		-mod=readonly \
-		-modcacherw \
-		-buildmode=pie \
-		-ldflags "$(LDFLAGS)" \
-		-o dist/$(BIN) \
-		./main.go
+	go build $(BUILD_FLAGS) -o dist/$(BIN) $(MODULE)
 
 completions:
 	mkdir -p dist/completions
