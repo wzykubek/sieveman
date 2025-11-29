@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -24,10 +23,10 @@ var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List all available scripts",
 	Long:  "This command lists all available scripts and shows indicator next to the active script if any.",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		scripts, err := c.GetScriptList()
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		for _, v := range scripts {
@@ -42,5 +41,7 @@ var lsCmd = &cobra.Command{
 
 			fmt.Printf("%s%c\n", v.Name, ind)
 		}
+
+		return nil
 	},
 }

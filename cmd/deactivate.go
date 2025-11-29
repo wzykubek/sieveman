@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -15,9 +13,11 @@ var deactivateCmd = &cobra.Command{
 	Short: "Deactivate all scripts",
 	Long:  "Only one script can be active at a time, so this command simply deactivates active script.",
 	Args:  cobra.RangeArgs(0, 1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := c.DeactivateScripts(); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
+
+		return nil
 	},
 }

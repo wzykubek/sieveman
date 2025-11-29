@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -15,14 +15,16 @@ var activateCmd = &cobra.Command{
 	Short: "Activate a script",
 	Long:  "Activate a script with given name. Keep in mind that in most cases only one script will be active at a time, so when there was an active script, it will be deactivated by a server.",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		scriptName := args[0]
 		if scriptName == "" {
-			log.Fatalln("Error: script name cannot be empty")
+			return fmt.Errorf("script name cannot be empty\n")
 		}
 
 		if err := c.ActivateScript(scriptName); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
+
+		return nil
 	},
 }

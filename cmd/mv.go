@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -15,12 +13,14 @@ var mvCmd = &cobra.Command{
 	Short: "Rename script",
 	Long:  "This command renames remote scripts on server.",
 	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		oldName := args[0]
 		newName := args[1]
 
 		if err := c.RenameScript(oldName, newName); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
+
+		return nil
 	},
 }

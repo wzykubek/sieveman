@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 	"strings"
 
 	"go.wzykubek.xyz/sieveman/pkg/client"
@@ -22,6 +21,12 @@ var (
 	password string
 	verbose  bool
 )
+
+func runInlineCmd(c *cobra.Command, args []string) {
+	if err := c.RunE(c, args); err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+}
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&host, "host", "H", "", "host")
@@ -112,15 +117,19 @@ If you do not specify the command, you will enter interactive mode instead.`,
 					fmt.Println("EOF")
 					break
 				}
-				fmt.Printf("Error: %s\n", err)
-				os.Exit(1)
+				log.Fatalf("Error: %s\n", err)
 			}
 
-			line = strings.TrimSpace(line)
-			switch {
-			case line == "exit" || line == "bye":
+			fields := strings.Fields(strings.TrimSpace(line))
+			if len(fields) == 0 {
+				continue
+			}
+
+			switch fields[0] {
+			case "exit", "bye":
 				return
-			case line == "help":
+
+			case "help":
 				fmt.Println(`Available commands:
 activate <script_name>              Activate a script
 bye                                 Exit the shell
@@ -134,60 +143,70 @@ mv <old_name> <new_name>            Rename a script
 put <file_name> [script_name]       Put a script
 rm <script_name>                    Remove a script
 version                             Display the program version`)
-			case strings.HasPrefix(line, "activate"):
-				args := strings.Fields(line)
-				if len(args) == 1 {
-					fmt.Println("You must provide a script name.")
+
+			case "activate":
+				if len(fields) == 1 {
+					fmt.Println("Error: script name not specified")
 					continue
 				}
-				activateCmd.Run(activateCmd, args[1:])
-			case line == "deactivate":
-				deactivateCmd.Run(deactivateCmd, []string{})
-			case strings.HasPrefix(line, "edit"):
-				args := strings.Fields(line)
-				if len(args) == 1 {
-					fmt.Println("You must provide a script name.")
+
+				runInlineCmd(activateCmd, fields[1:])
+
+			case "deactivate":
+				runInlineCmd(deactivateCmd, []string{})
+
+			case "edit":
+				if len(fields) == 1 {
+					fmt.Println("Error: script name not specified")
 					continue
 				}
-				editCmd.Run(editCmd, args[1:])
-			case strings.HasPrefix(line, "get"):
-				args := strings.Fields(line)
-				if len(args) == 1 {
-					fmt.Println("You must provide a script name.")
+
+				runInlineCmd(editCmd, fields[1:])
+
+			case "get":
+				if len(fields) == 1 {
+					fmt.Println("Error: script name not specified")
 					continue
 				}
-				getCmd.Run(getCmd, args[1:])
-			case line == "ls":
-				lsCmd.Run(lsCmd, []string{})
-			case strings.HasPrefix(line, "mv"):
-				args := strings.Fields(line)
-				mvCmd.Run(mvCmd, args[1:])
-				if len(args) == 1 {
-					fmt.Println("You must provide a script name.")
+
+				runInlineCmd(getCmd, fields[1:])
+
+			case "ls":
+				runInlineCmd(lsCmd, []string{})
+
+			case "mv":
+				if len(fields) == 1 {
+					fmt.Println("Error: script name not specified")
 					continue
 				}
-				if len(args) == 2 {
-					fmt.Println("You must provide new name.")
+				if len(fields) == 2 {
+					fmt.Println("Error: new name not specified")
 					continue
 				}
-			case strings.HasPrefix(line, "put"):
-				args := strings.Fields(line)
-				if len(args) == 1 {
-					fmt.Println("You must provide a file name.")
+
+				runInlineCmd(mvCmd, fields[1:])
+
+			case "put":
+				if len(fields) == 1 {
+					fmt.Println("Error: file name not specified")
 					continue
 				}
-				putCmd.Run(putCmd, args[1:])
-			case strings.HasPrefix(line, "rm"):
-				args := strings.Fields(line)
-				if len(args) == 1 {
-					fmt.Println("You must provide a script name.")
+
+				runInlineCmd(putCmd, fields[1:])
+
+			case "rm":
+				if len(fields) == 1 {
+					fmt.Println("Error: script name not specified")
 					continue
 				}
-				rmCmd.Run(rmCmd, args[1:])
-			case line == "version":
+
+				runInlineCmd(rmCmd, fields[1:])
+
+			case "version":
 				versionCmd.Run(versionCmd, []string{})
+
 			default:
-				fmt.Println("Invalid command.")
+				fmt.Println("Error: invalid command")
 			}
 		}
 	},

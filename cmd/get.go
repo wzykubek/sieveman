@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ var getCmd = &cobra.Command{
 	Long: `This command downloads specified script and saves it to given location.
 You can use '-' character as a file name to print script content to stdout instead.`,
 	Args: cobra.RangeArgs(1, 2),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		scriptName := args[0]
 		outFilename := scriptName
 		if len(args) > 1 {
@@ -31,7 +31,7 @@ You can use '-' character as a file name to print script content to stdout inste
 
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		var f *os.File
@@ -42,13 +42,13 @@ You can use '-' character as a file name to print script content to stdout inste
 		} else {
 			if _, err := os.Stat(outFilename); err == nil {
 				if !forceWrite {
-					log.Fatalf("Error: File %s exists\n", outFilename)
+					return fmt.Errorf("file %s exists\n", outFilename)
 				}
 			}
 
 			f, err = os.Create(outFilename)
 			if err != nil {
-				log.Fatalf("Error: %s\n", err)
+				return err
 			}
 		}
 
@@ -56,7 +56,9 @@ You can use '-' character as a file name to print script content to stdout inste
 		defer buf.Flush()
 
 		if _, err = buf.WriteString(content); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
+
+		return nil
 	},
 }

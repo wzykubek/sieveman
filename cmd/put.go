@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -23,7 +22,7 @@ If remote name is not specified, script will be uploaded with the same name as l
 
 When you want to make changes to remote script and upload it immediately you should consider using edit command instead.`,
 	Args: cobra.RangeArgs(1, 2),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		filename := args[0]
 		remoteName := filename
 		if len(args) > 1 {
@@ -32,18 +31,20 @@ When you want to make changes to remote script and upload it immediately you sho
 
 		file, err := os.Open(filename)
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 		defer file.Close()
 
 		if err = c.PutScript(file, remoteName); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		if activate {
 			if err = c.ActivateScript(remoteName); err != nil {
-				log.Fatalf("Error: %s\n", err)
+				return err
 			}
 		}
+
+		return nil
 	},
 }

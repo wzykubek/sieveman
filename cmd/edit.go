@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"os/exec"
 
@@ -18,27 +17,27 @@ var editCmd = &cobra.Command{
 	Short: "Edit specified script remotely in default editor",
 	Long:  "This command combines get and put together. Use it to directly edit remote scripts in your default editor specified with EDITOR environment variable.",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		scriptName := args[0]
 		content, err := c.GetScriptContent(scriptName)
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		tmpFile, err := os.CreateTemp(os.TempDir(), "sieveman")
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		buf := bufio.NewWriter(tmpFile)
 
 		_, err = buf.WriteString(content)
 		if err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		if err := buf.Flush(); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		editor := os.Getenv("EDITOR")
@@ -48,11 +47,13 @@ var editCmd = &cobra.Command{
 		editorProc.Stderr = os.Stderr
 
 		if err = editorProc.Run(); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
 
 		if err = c.PutScript(tmpFile, scriptName); err != nil {
-			log.Fatalf("Error: %s\n", err)
+			return err
 		}
+
+		return nil
 	},
 }
